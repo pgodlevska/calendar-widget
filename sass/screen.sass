@@ -1,0 +1,98 @@
+/* Colors for fonts */
+$main-color-font: white
+$light-green-font: #cbfb00
+$light-grey-font: #999999
+$dark-grey-font: #323232
+
+/* Main field color scheme*/
+$main-background: #0e0e0e
+$top-light: #515151
+$side-light: #2c2c2c
+$shadow: #000000
+
+/* Sizing and shaping  */
+$radius: 4px
+$day-column-width: 23px
+$total-width: $day-column-width * 7 + 4px
+
+$arrow-drift: 8px
+
+
+.cw-container
+    width: $total-width
+    padding: 1px
+    background-color: #454545
+    border:
+        style: solid
+        width: 1px
+        color: #2c2c2c
+        radius: $radius
+    color: $main-color-font
+    font:
+        family: "Helvetica Neue", Helvetica, Arial, Geneva, sans-serif
+        size: 13px
+        weight: bold
+
+.cw-field
+    padding-bottom: 2px
+    background-color: $main-background
+    border:
+        style: solid
+        width: 1px
+        top-color: $top-light
+        bottom-color: $shadow
+        right-color: $main-background
+        left-color: $main-background
+        radius: $radius
+
+.cw-month-head
+    position: relative
+    padding: 2px
+    text-align: center
+    color: $light-green-font
+    span
+        margin: 0px 2px
+
+@mixin arrow
+    position: absolute
+    color: $main-color-font
+
+.cw-arrow-back
+    @include arrow
+    left: $arrow-drift
+
+.cw-arrow-forward
+    @include arrow
+    right: $arrow-drift
+
+.cw-day
+    display: inline-block
+    padding: 1px 2px
+    width: $day-column-width - 3px - 4px
+    border:
+        right-style: solid
+        left-style: solid
+        left-width: 2px
+        right-width: 1px
+        left-color: $side-light
+        right-color: $shadow
+    text-align: right
+
+/* Sequels for .cw-day */
+.of-week
+    padding-top: 0px
+    color: $light-grey-font
+    text-align: center
+
+.first
+    border-left-color: $main-background
+
+.last
+    border-right: $main-background
+
+.today
+    color: $light-green-font
+
+.not-month
+    color: $dark-grey-font
+
