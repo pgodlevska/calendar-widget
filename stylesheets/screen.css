@@ -1,22 +1,26 @@
 /* Colors for fonts */
 /* Main field color scheme */
 /* Sizing and shaping  */
-/* line 21, ../sass/screen.sass */
+/* line 39, ../sass/screen.sass */
 .cw-container {
   width: 165px;
   padding: 1px;
-  background-color: #454545;
+  background-color: #2c2c2c;
   border-style: solid;
   border-width: 1px;
   border-color: #2c2c2c;
   border-radius: 4px;
-  color: white;
   font-family: "Helvetica Neue", Helvetica, Arial, Geneva, sans-serif;
   font-size: 13px;
   font-weight: bold;
+  color: white;
+}
+/* line 50, ../sass/screen.sass */
+.cw-container span {
+  cursor: default;
 }
 
-/* line 36, ../sass/screen.sass */
+/* line 53, ../sass/screen.sass */
 .cw-field {
   padding-bottom: 2px;
   background-color: #0e0e0e;
@@ -29,33 +33,46 @@
   border-radius: 4px;
 }
 
-/* line 48, ../sass/screen.sass */
+/* line 65, ../sass/screen.sass */
 .cw-month-head {
   position: relative;
-  padding: 2px;
+  padding: 1px;
   text-align: center;
   color: #cbfb00;
 }
-/* line 53, ../sass/screen.sass */
+/* line 70, ../sass/screen.sass */
 .cw-month-head span {
-  margin: 0px 2px;
+  padding: 0px 2px;
+}
+/* line 28, ../sass/screen.sass */
+.cw-month-head span:hover {
+  border-radius: 4px;
+  background-color: #2c2c2c;
 }
 
-/* line 60, ../sass/screen.sass */
+/* line 74, ../sass/screen.sass */
 .cw-arrow-back {
   position: absolute;
   color: white;
-  left: 8px;
+  left: 6px;
+}
+/* line 35, ../sass/screen.sass */
+.cw-arrow-back:hover {
+  color: #cbfb00;
 }
 
-/* line 64, ../sass/screen.sass */
+/* line 78, ../sass/screen.sass */
 .cw-arrow-forward {
   position: absolute;
   color: white;
-  right: 8px;
+  right: 6px;
+}
+/* line 35, ../sass/screen.sass */
+.cw-arrow-forward:hover {
+  color: #cbfb00;
 }
 
-/* line 68, ../sass/screen.sass */
+/* line 82, ../sass/screen.sass */
 .cw-day {
   display: inline-block;
   padding: 1px 2px;
@@ -70,29 +87,35 @@
 }
 
 /* Sequels for .cw-day */
-/* line 82, ../sass/screen.sass */
+/* line 28, ../sass/screen.sass */
+.regular:hover {
+  border-radius: 4px;
+  background-color: #2c2c2c;
+}
+
+/* line 99, ../sass/screen.sass */
+.first {
+  border-left-color: #0e0e0e;
+}
+
+/* line 102, ../sass/screen.sass */
+.last {
+  border-right: #0e0e0e;
+}
+
+/* line 105, ../sass/screen.sass */
+.today {
+  color: #cbfb00;
+}
+
+/* line 108, ../sass/screen.sass */
 .of-week {
   padding-top: 0px;
   color: #999999;
   text-align: center;
 }
 
-/* line 87, ../sass/screen.sass */
-.first {
-  border-left-color: #0e0e0e;
-}
-
-/* line 90, ../sass/screen.sass */
-.last {
-  border-right: #0e0e0e;
-}
-
-/* line 93, ../sass/screen.sass */
-.today {
-  color: #cbfb00;
-}
-
-/* line 96, ../sass/screen.sass */
+/* line 113, ../sass/screen.sass */
 .not-month {
   color: #323232;
 }

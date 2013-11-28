@@ -7,7 +7,7 @@ $dark-grey-font: #323232
 /* Main field color scheme*/
 $main-background: #0e0e0e
 $top-light: #515151
-$side-light: #2c2c2c
+$lining: #2c2c2c
 $shadow: #000000
 
 /* Sizing and shaping  */
@@ -15,23 +15,40 @@ $radius: 4px
 $day-column-width: 23px
 $total-width: $day-column-width * 7 + 4px
 
-$arrow-drift: 8px
+$arrow-drift: 6px
+
+
+@mixin fonts
+    font:
+        family: "Helvetica Neue", Helvetica, Arial, Geneva, sans-serif
+        size: 13px
+        weight: bold
+
+@mixin element-hover
+    &:hover
+        border-radius: $radius
+        background-color: $lining
+
+@mixin arrow
+    position: absolute
+    color: $main-color-font
+    &:hover
+        color: $light-green-font
 
 
 .cw-container
     width: $total-width
     padding: 1px
-    background-color: #454545
+    background-color: $lining
     border:
         style: solid
         width: 1px
-        color: #2c2c2c
+        color: $lining
         radius: $radius
+    @include fonts
     color: $main-color-font
-    font:
-        family: "Helvetica Neue", Helvetica, Arial, Geneva, sans-serif
-        size: 13px
-        weight: bold
+    span
+        cursor: default
 
 .cw-field
     padding-bottom: 2px
@@ -47,15 +64,12 @@ $arrow-drift: 8px
 
 .cw-month-head
     position: relative
-    padding: 2px
+    padding: 1px
     text-align: center
     color: $light-green-font
     span
-        margin: 0px 2px
-
-@mixin arrow
-    position: absolute
-    color: $main-color-font
+        @include element-hover
+        padding: 0px 2px
 
 .cw-arrow-back
     @include arrow
@@ -74,15 +88,13 @@ $arrow-drift: 8px
         left-style: solid
         left-width: 2px
         right-width: 1px
-        left-color: $side-light
+        left-color: $lining
         right-color: $shadow
     text-align: right
 
 /* Sequels for .cw-day */
-.of-week
-    padding-top: 0px
-    color: $light-grey-font
-    text-align: center
+.regular
+    @include element-hover
 
 .first
     border-left-color: $main-background
@@ -92,6 +104,11 @@ $arrow-drift: 8px
 
 .today
     color: $light-green-font
+
+.of-week
+    padding-top: 0px
+    color: $light-grey-font
+    text-align: center
 
 .not-month
     color: $dark-grey-font

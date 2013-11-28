@@ -49,21 +49,22 @@ function fillWeek(weekNode, daysArray, letters, weekNo) {
         day = setNode("span", weekNode, CSS_REF.day, daysArray[i]);
         if (letters) {
             day.className += CSS_REF.sequelDayOfWeek;
+        } else {
+            // Find days from other months
+            if (weekNo < 1 && daysArray[i] > 7 ||
+                weekNo > 1 && daysArray[i] < 7) {
+                day.className += CSS_REF.sequelDayNotMonth;
+            } else {
+                day.className += CSS_REF.sequelDayRegular;
+                if (daysArray[i] == today.getDate()) {
+                    day.className += CSS_REF.sequelDayToday;
+                }
+            }
         }
         if (i == 0) {
             day.className += CSS_REF.sequelDayFirst;
         } else if (i == 6) {
             day.className += CSS_REF.sequelDayLast;
-        }
-        if (daysArray[i] == today.getDate()) {
-            day.className += CSS_REF.sequelDayToday;
-        }
-        if (!(letters)) {
-            // Find days from other months
-            if (weekNo < 1 && daysArray[i] > 7 ||
-                weekNo > 1 && daysArray[i] < 7) {
-                day.className += CSS_REF.sequelDayNotMonth;
-            }
         }
     }
 }
@@ -76,11 +77,12 @@ var CSS_REF = {
     arrowBack: "cw-arrow-back",
     arrowForward: "cw-arrow-forward",
     day: "cw-day",
-    sequelDayOfWeek: " of-week",
     sequelDayFirst: " first",
     sequelDayLast: " last",
-    sequelDayToday: " today",
-    sequelDayNotMonth: " not-month"
+    sequelDayOfWeek: " of-week",
+    sequelDayNotMonth: " not-month",
+    sequelDayRegular: " regular",
+    sequelDayToday: " today"
 };
 
 /* Content Constants */
