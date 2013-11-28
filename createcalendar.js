@@ -1,15 +1,23 @@
 function monthInWeeks(currDate, startWeek) {
+    // Day week starts: 0 - Sunday, 1 - Monday and so on.
+    // 0 - Sunday by default.
     startWeek = startWeek || 0;
     startWeek %= 7;
 
     var daysInWeeks = new Array();
+    // First day of month defined by given date currDate
     var d = new Date(currDate.getYear(), currDate.getMonth(), 1);
+    // If 1st day of month is not the start of the week
     if (d.getDay() != startWeek) {
+        // Look for latest start of the week in previous month
         d.setDate(d.getDate() - d.getDay() + startWeek);
         }
+
     var i = 0;
+    // All weeks with this month days
     while (d.getMonth() <= currDate.getMonth()) {
         daysInWeeks[i] = new Array();
+        // Arrange days in weeks
         for (var j = 0; j < 7; j++) {
             daysInWeeks[i][j] = d.getDate();
             d.setDate(d.getDate() + 1)
@@ -20,77 +28,96 @@ function monthInWeeks(currDate, startWeek) {
 }
 
 
-function createCalendar(placeId){
-                     var place = document.getElementById(placeId);
-                     var container = document.createElement("div");
-                     container.className = "cw-container";
-                     place.appendChild(container);
-                     var field = document.createElement("div");
-                     field.className = "cw-field";
-                     container.appendChild(field);
-                     var monthHeader = document.createElement("div");
-                     monthHeader.className += "cw-month-head";
-                     field.appendChild(monthHeader);
-                     var monthNames = ["January", "February", "March", "April",
-                                       "May", "June", "July", "August",
-                                       "September", "October", "November", "December"
-                                      ];
-                     var arrowBack = document.createElement("span");
-                     arrowBack.className = "cw-arrow-back";
-                     arrowBack.innerHTML = "&#9668;";
-                     var monthInst = document.createElement("span");
-                     var today = new Date();
-                     monthInst.innerHTML = monthNames[today.getMonth()];
-                     var yearInst = document.createElement("span");
-                     yearInst.innerHTML = today.getFullYear();
-                     var arrowForward = document.createElement("span");
-                     arrowForward.className = "cw-arrow-forward";
-                     arrowForward.innerHTML = "&#9658;";
-                     monthHeader.appendChild(arrowBack);
-                     monthHeader.appendChild(monthInst);
-                     monthHeader.appendChild(yearInst);
-                     monthHeader.appendChild(arrowForward);
-                     var monthBody = document.createElement("div");
-                     field.appendChild(monthBody);
-
-                     var days = monthInWeeks(today);
-                     var week;
-                     var day;
-                     dayNameShort = ["S", "M", "T", "W", "T", "F", "S"];
-
-                     week = document.createElement("div");
-                     monthBody.appendChild(week);
-                     for (i = 0; i < 7; i++) {
-                         day = document.createElement("span");
-                         day.className = "cw-day of-week";
-                         if (i == 0) {
-                             day.className += " first";
-                         } else if (i == 6) {
-                             day.className += " last";
-                         }
-                         day.innerHTML = dayNameShort[i];
-                         week.appendChild(day);
-                     }
-                     for (i = 0; i < days.length; i++) {
-                         week = document.createElement("div");
-                         monthBody.appendChild(week);
-                         for (j = 0; j < 7; j++) {
-                             day = document.createElement("span");
-                             day.className += "cw-day";
-                             if (j == 0) {
-                                 day.className += " first";
-                             } else if (j == 6){
-                                 day.className += " last";
-                             }
-                             if (days[i][j] == today.getDate()) {
-                                 day.className += " today";
-                             }
-                             if (i < 1 && days[i][j] > 7 || i > 1 && days[i][j] < 7) {
-                                 day.className += " not-month";
-                             }
-                             day.innerHTML = days[i][j];
-                             week.appendChild(day);
-                         }
-                     }
-
+function setNode(nodeType, nodeParent, nodeClass, nodeContent) {
+    var newNode = document.createElement(nodeType);
+    nodeParent.appendChild(newNode);
+    if (nodeClass) {
+        newNode.className = nodeClass;
+    }
+    if (nodeContent) {
+        newNode.innerHTML = nodeContent;
+    }
+    return newNode;
 }
+
+
+function fillWeek(weekNode, daysArray, letters, weekNo) {
+    letters = letters || false;
+    var day;
+    var today = new Date();
+    for (var i = 0; i < 7; i++) {
+        day = setNode("span", weekNode, CSS_REF.day, daysArray[i]);
+        if (letters) {
+            day.className += CSS_REF.sequelDayOfWeek;
+        }
+        if (i == 0) {
+            day.className += CSS_REF.sequelDayFirst;
+        } else if (i == 6) {
+            day.className += CSS_REF.sequelDayLast;
+        }
+        if (daysArray[i] == today.getDate()) {
+            day.className += CSS_REF.sequelDayToday;
+        }
+        if (!(letters)) {
+            // Find days from other months
+            if (weekNo < 1 && daysArray[i] > 7 ||
+                weekNo > 1 && daysArray[i] < 7) {
+                day.className += CSS_REF.sequelDayNotMonth;
+            }
+        }
+    }
+}
+
+/* CSS reference */
+var CSS_REF = {
+    container: "cw-container",
+    field: "cw-field",
+    monthHeader: "cw-month-head",
+    arrowBack: "cw-arrow-back",
+    arrowForward: "cw-arrow-forward",
+    day: "cw-day",
+    sequelDayOfWeek: " of-week",
+    sequelDayFirst: " first",
+    sequelDayLast: " last",
+    sequelDayToday: " today",
+    sequelDayNotMonth: " not-month"
+};
+
+/* Content Constants */
+var CONT = {
+    arrowBack: "&#9668;",
+    arrowForward: "&#9658;",
+    monthNames: ["January", "February", "March", "April",
+                  "May", "June", "July", "August",
+                  "September", "October", "November", "December"
+                 ],
+    dayShortNames: ["S", "M", "T", "W", "T", "F", "S"]
+};
+
+var today = new Date();
+
+function createCalendar(placeId, dayDate){
+    // Calendar layout
+    var place = document.getElementById(placeId);
+    var container = setNode("div", place, CSS_REF.container);
+    var field = setNode("div", container, CSS_REF.field);
+    var monthHeader = setNode("div", field, CSS_REF.monthHeader);
+    var arrowBack = setNode("span", monthHeader, CSS_REF.arrowBack,
+                            CONT.arrowBack);
+    var monthInst = setNode("span", monthHeader, '',
+                            CONT.monthNames[dayDate.getMonth()]);
+    var yearInst = setNode("span", monthHeader, '',
+                           today.getFullYear());
+    var arrowForward = setNode("span", monthHeader, CSS_REF.arrowForward,
+                               CONT.arrowForward);
+    var monthBody = setNode("div", field);
+
+    var days = monthInWeeks(dayDate);
+    var week = setNode("div", monthBody);
+    fillWeek(week, CONT.dayShortNames, true);
+    for (var i = 0; i < days.length; i++) {
+        week = setNode("div", monthBody);
+        fillWeek(week, days[i], false, i);
+    }
+}
+
