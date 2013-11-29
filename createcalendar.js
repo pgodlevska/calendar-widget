@@ -41,10 +41,10 @@ function dateString(dateSource) {
 
 
 function dateFromString(dateString) {
-    date = new Date();
     var patt = new RegExp("^([0-9]{4}).([0-9]{2}).([0-9]{2})");
     var found = dateString.match(patt);
     if (found) {
+        var date = new Date();
         date.setFullYear(parseInt(found[1]));
         date.setMonth(parseInt(found[2]) - 1);
         date.setDate(parseInt(found[3]));
@@ -119,12 +119,15 @@ function renderMonth(dateSource) {
 }
 
 
-function switchMonth(dateSource) {
-    var monthInst = document.getElementById(DOM_ID.monthInst);
+function switchMonth(dateSource, suffix) {
+    var monthInstId = DOM_ID.monthInst + suffix;
+    var monthInst = document.getElementById(monthInstId);
     monthInst.innerHTML = CONT.monthNames[dateSource.getMonth()];
-    var yearInst = document.getElementById(DOM_ID.yearInst);
+    var yearInstId = DOM_ID.yearInst + suffix;
+    var yearInst = document.getElementById(yearInstId);
     yearInst.innerHTML = dateSource.getFullYear();
-    var monthBody = document.getElementById(DOM_ID.monthBody);
+    var monthBodyId = DOM_ID.monthBody + suffix;
+    var monthBody = document.getElementById(monthBodyiId);
     var monthDays = renderMonth(dateSource);
     monthBody.replaceChild(monthDays, monthBody.lastChild);
 }
@@ -224,7 +227,7 @@ function attachCalendar(dateInputId) {
             var monthBack = document.getElementById(arrowBackId);
             monthBack.onclick = function() {
                 currentDate.setMonth(currentDate.getMonth() - 1);
-                switchMonth(currentDate);
+                switchMonth(currentDate, dateInputId);
             };
 
             // Month forward handler
@@ -232,7 +235,7 @@ function attachCalendar(dateInputId) {
             var monthForward = document.getElementById(arrowForwardId);
             monthForward.onclick = function() {
                 currentDate.setMonth(currentDate.getMonth() + 1);
-                switchMonth(currentDate);
+                switchMonth(currentDate, dateInputId);
             };
 
             // Pick a date handler
@@ -268,8 +271,11 @@ function attachCalendar(dateInputId) {
             //TODO: put hadlers out of here
         }
 
-        // Show created calendar
+        // Allow created calendar, disable user input
         container.style.display = "block";
+        this.onkeyup = function() {
+             this.value = "";
+        }
     };
 }
 
