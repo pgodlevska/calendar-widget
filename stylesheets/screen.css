@@ -3,6 +3,7 @@
 /* Sizing and shaping  */
 /* line 39, ../sass/screen.sass */
 .cw-container {
+  display: block;
   width: 165px;
   padding: 1px;
   background-color: #2c2c2c;
@@ -15,12 +16,12 @@
   font-weight: bold;
   color: white;
 }
-/* line 50, ../sass/screen.sass */
+/* line 51, ../sass/screen.sass */
 .cw-container span {
   cursor: default;
 }
 
-/* line 53, ../sass/screen.sass */
+/* line 54, ../sass/screen.sass */
 .cw-field {
   padding-bottom: 2px;
   background-color: #0e0e0e;
@@ -33,14 +34,14 @@
   border-radius: 4px;
 }
 
-/* line 65, ../sass/screen.sass */
+/* line 66, ../sass/screen.sass */
 .cw-month-head {
   position: relative;
   padding: 1px;
   text-align: center;
   color: #cbfb00;
 }
-/* line 70, ../sass/screen.sass */
+/* line 71, ../sass/screen.sass */
 .cw-month-head span {
   padding: 0px 2px;
 }
@@ -50,7 +51,7 @@
   background-color: #2c2c2c;
 }
 
-/* line 74, ../sass/screen.sass */
+/* line 75, ../sass/screen.sass */
 .cw-arrow-back {
   position: absolute;
   color: white;
@@ -61,7 +62,7 @@
   color: #cbfb00;
 }
 
-/* line 78, ../sass/screen.sass */
+/* line 79, ../sass/screen.sass */
 .cw-arrow-forward {
   position: absolute;
   color: white;
@@ -72,7 +73,7 @@
   color: #cbfb00;
 }
 
-/* line 82, ../sass/screen.sass */
+/* line 83, ../sass/screen.sass */
 .cw-day {
   display: inline-block;
   padding: 1px 2px;
@@ -93,29 +94,29 @@
   background-color: #2c2c2c;
 }
 
-/* line 99, ../sass/screen.sass */
+/* line 100, ../sass/screen.sass */
 .first {
   border-left-color: #0e0e0e;
 }
 
-/* line 102, ../sass/screen.sass */
+/* line 103, ../sass/screen.sass */
 .last {
   border-right: #0e0e0e;
 }
 
-/* line 105, ../sass/screen.sass */
+/* line 106, ../sass/screen.sass */
 .today {
   color: #cbfb00;
 }
 
-/* line 108, ../sass/screen.sass */
+/* line 109, ../sass/screen.sass */
 .of-week {
   padding-top: 0px;
   color: #999999;
   text-align: center;
 }
 
-/* line 113, ../sass/screen.sass */
+/* line 114, ../sass/screen.sass */
 .not-month {
   color: #323232;
 }
