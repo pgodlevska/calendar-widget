@@ -42,10 +42,16 @@ function dateString(dateSource) {
 
 function dateFromString(dateString) {
     date = new Date();
-    date.setFullYear(parseInt(dateString.substring(0,4)));
-    date.setMonth(parseInt(dateString.substring(5,7)) - 1);
-    date.setDate(parseInt(dateString.substring(8,10)));
-    return date;
+    var patt = new RegExp("^([0-9]{4}).([0-9]{2}).([0-9]{2})");
+    var found = dateString.match(patt);
+    if (found) {
+        date.setFullYear(parseInt(found[1]));
+        date.setMonth(parseInt(found[2]) - 1);
+        date.setDate(parseInt(found[3]));
+        return date;
+    } else {
+        return null;
+    }
 }
 
 
@@ -142,11 +148,11 @@ var CSS_REF = {
 
 /* Needed ID's */
 DOM_ID ={
-    arrowBack: "arrow_back",
-    arrowForward: "arrow_forward",
-    monthInst: "month_name",
-    yearInst: "year_name",
-    monthBody: "month_body"
+    arrowBack: "arrow_back_",
+    arrowForward: "arrow_forward_",
+    monthInst: "month_name_",
+    yearInst: "year_name_",
+    monthBody: "month_body_"
 };
 
 /* Content Constants */
@@ -161,25 +167,30 @@ var CONT = {
 };
 
 
-function createCalendar(container, dateSource){
+function createCalendar(container, dateSource, idSuffix){
     // Calendar layout
     container.className = CSS_REF.container;
     var field = setNode("div", container, CSS_REF.field);
 
     // Month Header
     var monthHeader = setNode("div", field, CSS_REF.monthHeader);
+    var arrowBackId = DOM_ID.arrowBack + idSuffix;
     var arrowBack = setNode("span", monthHeader, CSS_REF.arrowBack,
-                            CONT.arrowBack, DOM_ID.arrowBack);
+                            CONT.arrowBack, arrowBackId);
+    var monthInstId = DOM_ID.monthInst + idSuffix;
     var monthInst = setNode("span", monthHeader, '',
                             CONT.monthNames[dateSource.getMonth()],
-                            DOM_ID.monthInst);
+                            monthInstId);
+    var yearInstId = DOM_ID.yearInst + idSuffix;
     var yearInst = setNode("span", monthHeader, '',
-                           dateSource.getFullYear(), DOM_ID.yearInst);
+                           dateSource.getFullYear(), yearInstId);
+    var arrowForwardId = DOM_ID.arrowForward + idSuffix;
     var arrowForward = setNode("span", monthHeader, CSS_REF.arrowForward,
-                               CONT.arrowForward, DOM_ID.arrowForward);
+                               CONT.arrowForward, arrowForwardId);
 
     // Month
-    var monthBody = setNode("div", field, '', '', DOM_ID.monthBody);
+    var monthBodyId = DOM_ID.monthBody + idSuffix;
+    var monthBody = setNode("div", field, '', '', monthBodyId);
     // Header with week days
     var weekHead = setNode("div", monthBody);
     fillWeek(weekHead, CONT.dayShortNames, true);
@@ -189,33 +200,44 @@ function createCalendar(container, dateSource){
 }
 
 
-window.onload = function() {
-    var dateInput = document.getElementById("date_input");
+function attachCalendar(dateInputId) {
+    var dateInput = document.getElementById(dateInputId);
+
+    var container = document.createElement("div");
+    xOffset = dateInput.getBoundingClientRect().left;
+    container.style.left = xOffset;
+    dateInput.parentNode.insertBefore(container, dateInput.nextSibling);
+
     var currentDate;
-    if (dateInput.value) {
+    if (dateInput.value && dateFromString(dateInput.value)) {
         currentDate = dateFromString(dateInput.value);
     } else {
         currentDate = new Date();
     }
-    var container = document.createElement("div");
-    dateInput.parentNode.insertBefore(container, dateInput.nextSibling);
+
     dateInput.onfocus = function() {
         if (!container.hasChildNodes()) {
-            createCalendar(container, currentDate);
+            createCalendar(container, currentDate, dateInputId);
+
             // Month back handler
-            var monthBack = document.getElementById(DOM_ID.arrowBack);
+            var arrowBackId = DOM_ID.arrowBack + dateInputId;
+            var monthBack = document.getElementById(arrowBackId);
             monthBack.onclick = function() {
                 currentDate.setMonth(currentDate.getMonth() - 1);
                 switchMonth(currentDate);
             };
+
             // Month forward handler
-            var monthBack = document.getElementById(DOM_ID.arrowForward);
-            monthBack.onclick = function() {
+            var arrowForwardId = DOM_ID.arrowForward + dateInputId;
+            var monthForward = document.getElementById(arrowForwardId);
+            monthForward.onclick = function() {
                 currentDate.setMonth(currentDate.getMonth() + 1);
                 switchMonth(currentDate);
             };
+
             // Pick a date handler
-            var monthBody = document.getElementById(DOM_ID.monthBody);
+            var monthBodyId = DOM_ID.monthBody + dateInputId;
+            var monthBody = document.getElementById(monthBodyId);
             monthBody.onclick = function(e) {
                 var day = e.target;
                 var dayClass = day.className;
@@ -226,6 +248,7 @@ window.onload = function() {
                     container.style.display = "none";
                 }
             };
+
             // Hide calendar
             document.onclick = function(e) {
                 target = e.target;
@@ -241,8 +264,23 @@ window.onload = function() {
                     container.style.display = "none";
                 }
             };
+            //TODO: hanlders for month select and year select
+            //TODO: put hadlers out of here
         }
+
+        // Show created calendar
         container.style.display = "block";
     };
+}
+
+
+// Chunk of JS which attaches calendar to each input having type "date"
+window.onload = function() {
+    inputs = document.getElementsByTagName("input");
+    for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].getAttribute("type") == "date") {
+            attachCalendar(inputs[i].id);
+        }
+    }
 }
 
