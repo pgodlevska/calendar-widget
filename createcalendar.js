@@ -221,10 +221,12 @@ function createCalendar(container, dateSource, idSuffix){
         months[i].value = i;
         if (i == dateSource.getMonth()) {
             months[i].className += CSS_REF.sequelSelected;
+            var scrollPos = i;
         }
     }
     var yOffset = -1 * months[0].offsetHeight;
-    scrollBody.style.height = 9 * months[0].offsetHeight + 12;
+    scrollBody.style.height = 9 * months[0].offsetHeight;
+    monthField.scrollTop = scrollPos * months[0].offsetHeight;
     scrollBody.style.top = yOffset;
     scrollBody.style.display = "none";
 
