@@ -205,6 +205,10 @@ function createCalendar(container, dateSource, idSuffix){
 
 function attachCalendar(dateInputId) {
     var dateInput = document.getElementById(dateInputId);
+    if (dateInput.getAttribute("type") != "date" &&
+            dateInput.getAttribute("type") != "text") {
+        return;
+    }
 
     var container = document.createElement("div");
     xOffset = dateInput.getBoundingClientRect().left;
@@ -273,9 +277,16 @@ function attachCalendar(dateInputId) {
 
         // Allow created calendar, disable user input
         container.style.display = "block";
-        this.onkeyup = function() {
-             this.value = "";
-        }
+        this.onkeydown = function(e) {
+            var key = e.keyCode || e.charCode;
+
+            if ( key == 8 || key == 46 ) {
+                this.value = "";
+            }
+            else {
+                return false;
+            }
+        };
     };
 }
 
