@@ -145,7 +145,7 @@ function toggle(element) {
 var CSS_REF = {
     container: "cw-container",
     field: "cw-field",
-    scrollInner: "cw-inner-scroll",
+    innerScroll: "cw-inner-scroll",
     monthHeader: "cw-month-head",
     arrowBack: "cw-arrow-back",
     arrowForward: "cw-arrow-forward",
@@ -166,7 +166,8 @@ DOM_ID ={
     arrowForward: "arrow_forward_",
     monthInst: "month_name_",
     yearInst: "year_name_",
-    monthBody: "month_body_"
+    monthBody: "month_body_",
+    monthSelect: "month_select_"
 };
 
 /* Content Constants */
@@ -202,6 +203,30 @@ function createCalendar(container, dateSource, idSuffix){
     var arrowForwardId = DOM_ID.arrowForward + idSuffix;
     var arrowForward = setNode("span", monthHeader, CSS_REF.arrowForward,
                                CONT.arrowForward, arrowForwardId);
+
+    // Select month
+    var months = new Array();
+    var monthSelectId = DOM_ID.monthSelect + idSuffix;
+    var scrollBody = setNode("div", monthHeader, CSS_REF.field,
+                             "", monthSelectId);
+    scrollBody.className += CSS_REF.sequelOuterScroll;
+    var monthField = setNode("div", scrollBody, CSS_REF.innerScroll);
+    var xOffset = monthInst.getBoundingClientRect().right;
+    xOffset -= monthInst.getBoundingClientRect().left;
+    xOffset /= 2;
+    scrollBody.style.left = xOffset;
+    for (var i = 0; i < 12; i++) {
+        months[i] = setNode("div", monthField, CSS_REF.longWord,
+                            CONT.monthNames[i]);
+        months[i].value = i;
+        if (i == dateSource.getMonth()) {
+            months[i].className += CSS_REF.sequelSelected;
+        }
+    }
+    var yOffset = -1 * months[0].offsetHeight;
+    scrollBody.style.height = 9 * months[0].offsetHeight + 12;
+    scrollBody.style.top = yOffset;
+    scrollBody.style.display = "none";
 
     // Month
     var monthBodyId = DOM_ID.monthBody + idSuffix;
@@ -257,29 +282,17 @@ function attachCalendar(dateInputId) {
             // Month select handler
             var monthInstId = DOM_ID.monthInst + dateInputId;
             var monthInst = document.getElementById(monthInstId);
+            var monthSelectId = DOM_ID.monthSelect + dateInputId;
+            var monthSelect = document.getElementById(monthSelectId);
             monthInst.onclick = function() {
-                var months = new Array();
-                var scrollBody = setNode("div", monthInst.parentNode,
-                                         CSS_REF.field);
-                scrollBody.className += CSS_REF.sequelOuterScroll;
-                var monthField = setNode("div", scrollBody,
-                                         CSS_REF.innerScroll);
-                var xOffset = monthInst.getBoundingClientRect().right;
-                xOffset -= monthInst.getBoundingClientRect().left;
-                xOffset /= 2;
-                scrollBody.style.left = xOffset;
-                for (var i = 0; i < 12; i++) {
-                    months[i] = setNode("div", monthField,
-                                        CSS_REF.longWord,
-                                        CONT.monthNames[i]);
-                    if (i == currentDate.getMonth()) {
-                        months[i].className += CSS_REF.sequelSelected;
-                    }
-                }
-                var yOffset = -1 * months[0].offsetHeight;
-                scrollBody.style.height = 9 * months[0].offsetHeight + 12;
-                scrollBody.style.top = yOffset;
+                monthSelect.style.display = "block";
             };
+            monthSelect.onclick = function(e) {
+                var month = e.target;
+                currentDate.setMonth(month.value);
+                switchMonth(currentDate, dateInputId);
+                monthSelect.style.display = "none";
+            }
 
             // Pick a date handler
             var monthBodyId = DOM_ID.monthBody + dateInputId;
@@ -291,6 +304,7 @@ function attachCalendar(dateInputId) {
                     currentDate.setDate(day.innerHTML);
                     var chosen = dateString(currentDate);
                     dateInput.value = chosen;
+                    monthSelect.style.display = "none";
                     container.style.display = "none";
                 }
             };
@@ -307,7 +321,11 @@ function attachCalendar(dateInputId) {
                    target = target.parentNode;
                 }
                 if (!show) {
-                    container.style.display = "none";
+                    if (monthSelect.style.display == "block") {
+                        monthSelect.style.display = "none";
+                    } else if (container.style.display == "block") {
+                        container.style.display = "none";
+                    }
                 }
             };
             //TODO: hanlders for month select and year select
