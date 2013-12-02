@@ -110,7 +110,7 @@ function renderMonth(dateSource) {
                 if (dateSource.getFullYear() == today.getFullYear() &&
                     dateSource.getMonth() == today.getMonth() &&
                     dayNo == today.getDate()) {
-                        daySpans[j].className += CSS_REF.sequelDayToday;
+                        daySpans[j].className += CSS_REF.sequelSelected;
                 }
             }
         }
@@ -137,6 +137,7 @@ function switchMonth(dateSource, suffix) {
 var CSS_REF = {
     container: "cw-container",
     field: "cw-field",
+    scrollInner: "cw-inner-scroll",
     monthHeader: "cw-month-head",
     arrowBack: "cw-arrow-back",
     arrowForward: "cw-arrow-forward",
@@ -147,7 +148,8 @@ var CSS_REF = {
     sequelDayOfWeek: " of-week",
     sequelDayNotMonth: " not-month",
     sequelDayRegular: " regular",
-    sequelDayToday: " today"
+    sequelSelected: " selected",
+    sequelOuterScroll: " outer-scroll"
 };
 
 /* Needed ID's */
@@ -182,11 +184,12 @@ function createCalendar(container, dateSource, idSuffix){
     var arrowBack = setNode("span", monthHeader, CSS_REF.arrowBack,
                             CONT.arrowBack, arrowBackId);
     var monthInstId = DOM_ID.monthInst + idSuffix;
-    var monthInst = setNode("span", monthHeader, CSS_REF.longWord,
+    var cssCompClass = CSS_REF.longWord + CSS_REF.sequelSelected;
+    var monthInst = setNode("span", monthHeader, cssCompClass,
                             CONT.monthNames[dateSource.getMonth()],
                             monthInstId);
     var yearInstId = DOM_ID.yearInst + idSuffix;
-    var yearInst = setNode("span", monthHeader, CSS_REF.longWord,
+    var yearInst = setNode("span", monthHeader, cssCompClass,
                            dateSource.getFullYear(), yearInstId);
     var arrowForwardId = DOM_ID.arrowForward + idSuffix;
     var arrowForward = setNode("span", monthHeader, CSS_REF.arrowForward,
@@ -212,7 +215,7 @@ function attachCalendar(dateInputId) {
     }
 
     var container = document.createElement("div");
-    xOffset = dateInput.getBoundingClientRect().left;
+    var xOffset = dateInput.getBoundingClientRect().left;
     container.style.left = xOffset;
     dateInput.parentNode.insertBefore(container, dateInput.nextSibling);
 
@@ -241,6 +244,33 @@ function attachCalendar(dateInputId) {
             monthForward.onclick = function() {
                 currentDate.setMonth(currentDate.getMonth() + 1);
                 switchMonth(currentDate, dateInputId);
+            };
+
+            // Month select handler
+            var monthInstId = DOM_ID.monthInst + dateInputId;
+            var monthInst = document.getElementById(monthInstId);
+            monthInst.onclick = function() {
+                var months = new Array();
+                var scrollBody = setNode("div", monthInst.parentNode,
+                                         CSS_REF.field);
+                scrollBody.className += CSS_REF.sequelOuterScroll;
+                var monthField = setNode("div", scrollBody,
+                                         CSS_REF.innerScroll);
+                var xOffset = monthInst.getBoundingClientRect().right;
+                xOffset -= monthInst.getBoundingClientRect().left;
+                xOffset /= 2;
+                scrollBody.style.left = xOffset;
+                for (var i = 0; i < 12; i++) {
+                    months[i] = setNode("div", monthField,
+                                        CSS_REF.longWord,
+                                        CONT.monthNames[i]);
+                    if (i == currentDate.getMonth()) {
+                        months[i].className += CSS_REF.sequelSelected;
+                    }
+                }
+                var yOffset = -1 * months[0].offsetHeight;
+                scrollBody.style.height = 9 * months[0].offsetHeight + 12;
+                scrollBody.style.top = yOffset;
             };
 
             // Pick a date handler

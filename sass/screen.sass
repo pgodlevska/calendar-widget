@@ -26,10 +26,12 @@ $arrow-drift: 6px
 
 @mixin element-hover
     &:hover
+        cursor: default
         border-radius: $radius
         background-color: $lining
 
 @mixin arrow
+    padding: 0px 2px
     position: absolute
     color: $main-color-font
     &:hover
@@ -49,8 +51,7 @@ $arrow-drift: 6px
         radius: $radius
     @include fonts
     color: $main-color-font
-    span
-        cursor: default
+    cursor: default
 
 .cw-field
     padding-bottom: 2px
@@ -64,11 +65,16 @@ $arrow-drift: 6px
         left-color: $main-background
         radius: $radius
 
+.cw-inner-scroll
+    overflow: auto
+    width: 100%
+    height: 100%
+    padding: 0px 8px
+
 .cw-month-head
     position: relative
     padding: 1px
     text-align: center
-    color: $light-green-font
 
 .cw-long-word
     @include element-hover
@@ -76,10 +82,12 @@ $arrow-drift: 6px
 
 .cw-arrow-back
     @include arrow
+    @include element-hover
     left: $arrow-drift
 
 .cw-arrow-forward
     @include arrow
+    @include element-hover
     right: $arrow-drift
 
 .cw-day
@@ -105,7 +113,7 @@ $arrow-drift: 6px
 .last
     border-right: $main-background
 
-.today
+.selected
     color: $light-green-font
 
 .of-week
@@ -115,4 +123,8 @@ $arrow-drift: 6px
 
 .not-month
     color: $dark-grey-font
+
+.outer-scroll
+    overflow: hidden
+    position: absolute
 
