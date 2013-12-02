@@ -42,17 +42,18 @@
   text-align: center;
   color: #cbfb00;
 }
-/* line 72, ../sass/screen.sass */
-.cw-month-head span {
+
+/* line 73, ../sass/screen.sass */
+.cw-long-word {
   padding: 0px 2px;
 }
 /* line 28, ../sass/screen.sass */
-.cw-month-head span:hover {
+.cw-long-word:hover {
   border-radius: 4px;
   background-color: #2c2c2c;
 }
 
-/* line 76, ../sass/screen.sass */
+/* line 77, ../sass/screen.sass */
 .cw-arrow-back {
   position: absolute;
   color: white;
@@ -63,7 +64,7 @@
   color: #cbfb00;
 }
 
-/* line 80, ../sass/screen.sass */
+/* line 81, ../sass/screen.sass */
 .cw-arrow-forward {
   position: absolute;
   color: white;
@@ -74,7 +75,7 @@
   color: #cbfb00;
 }
 
-/* line 84, ../sass/screen.sass */
+/* line 85, ../sass/screen.sass */
 .cw-day {
   display: inline-block;
   padding: 1px 2px;
@@ -95,29 +96,29 @@
   background-color: #2c2c2c;
 }
 
-/* line 101, ../sass/screen.sass */
+/* line 102, ../sass/screen.sass */
 .first {
   border-left-color: #0e0e0e;
 }
 
-/* line 104, ../sass/screen.sass */
+/* line 105, ../sass/screen.sass */
 .last {
   border-right: #0e0e0e;
 }
 
-/* line 107, ../sass/screen.sass */
+/* line 108, ../sass/screen.sass */
 .today {
   color: #cbfb00;
 }
 
-/* line 110, ../sass/screen.sass */
+/* line 111, ../sass/screen.sass */
 .of-week {
   padding-top: 0px;
   color: #999999;
   text-align: center;
 }
 
-/* line 115, ../sass/screen.sass */
+/* line 116, ../sass/screen.sass */
 .not-month {
   color: #323232;
 }

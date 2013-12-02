@@ -127,7 +127,7 @@ function switchMonth(dateSource, suffix) {
     var yearInst = document.getElementById(yearInstId);
     yearInst.innerHTML = dateSource.getFullYear();
     var monthBodyId = DOM_ID.monthBody + suffix;
-    var monthBody = document.getElementById(monthBodyiId);
+    var monthBody = document.getElementById(monthBodyId);
     var monthDays = renderMonth(dateSource);
     monthBody.replaceChild(monthDays, monthBody.lastChild);
 }
@@ -140,6 +140,7 @@ var CSS_REF = {
     monthHeader: "cw-month-head",
     arrowBack: "cw-arrow-back",
     arrowForward: "cw-arrow-forward",
+    longWord: "cw-long-word",
     day: "cw-day",
     sequelDayFirst: " first",
     sequelDayLast: " last",
@@ -181,11 +182,11 @@ function createCalendar(container, dateSource, idSuffix){
     var arrowBack = setNode("span", monthHeader, CSS_REF.arrowBack,
                             CONT.arrowBack, arrowBackId);
     var monthInstId = DOM_ID.monthInst + idSuffix;
-    var monthInst = setNode("span", monthHeader, '',
+    var monthInst = setNode("span", monthHeader, CSS_REF.longWord,
                             CONT.monthNames[dateSource.getMonth()],
                             monthInstId);
     var yearInstId = DOM_ID.yearInst + idSuffix;
-    var yearInst = setNode("span", monthHeader, '',
+    var yearInst = setNode("span", monthHeader, CSS_REF.longWord,
                            dateSource.getFullYear(), yearInstId);
     var arrowForwardId = DOM_ID.arrowForward + idSuffix;
     var arrowForward = setNode("span", monthHeader, CSS_REF.arrowForward,
@@ -279,11 +280,17 @@ function attachCalendar(dateInputId) {
         container.style.display = "block";
         this.onkeydown = function(e) {
             var key = e.keyCode || e.charCode;
-
-            if ( key == 8 || key == 46 ) {
+            // Clear input value on backspace and delete
+            if (key == 8 || key == 46) {
                 this.value = "";
-            }
-            else {
+            // Toggle on enter
+            } else if (key ==13) {
+                if (container.style.display == "none") {
+                    container.style.display = "block";
+                } else {
+                    container.style.display = "none";
+                }
+            } else {
                 return false;
             }
         };
