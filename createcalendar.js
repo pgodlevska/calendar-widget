@@ -132,6 +132,14 @@ function switchMonth(dateSource, suffix) {
     monthBody.replaceChild(monthDays, monthBody.lastChild);
 }
 
+function toggle(element) {
+    if (element.style.display == "none") {
+        element.style.display = "block";
+    } else {
+        element.style.display = "none";
+    }
+}
+
 
 /* CSS reference */
 var CSS_REF = {
@@ -315,11 +323,7 @@ function attachCalendar(dateInputId) {
                 this.value = "";
             // Toggle on enter
             } else if (key ==13) {
-                if (container.style.display == "none") {
-                    container.style.display = "block";
-                } else {
-                    container.style.display = "none";
-                }
+                toggle(container);
             } else {
                 return false;
             }
