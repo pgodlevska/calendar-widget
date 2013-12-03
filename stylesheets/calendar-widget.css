@@ -1,4 +1,4 @@
-/* line 43, ../sass/screen.sass */
+/* line 43, ../sass/calendar-widget.sass */
 .cw-container {
   position: absolute;
   width: 165px;
@@ -16,7 +16,7 @@
   cursor: default;
 }
 
-/* line 57, ../sass/screen.sass */
+/* line 57, ../sass/calendar-widget.sass */
 .cw-field {
   padding-bottom: 2px;
   background-color: #0e0e0e;
@@ -29,74 +29,74 @@
   border-radius: 4px;
 }
 
-/* line 69, ../sass/screen.sass */
+/* line 69, ../sass/calendar-widget.sass */
 .cw-month-head {
   position: relative;
   padding: 1px;
 }
-/* line 72, ../sass/screen.sass */
+/* line 72, ../sass/calendar-widget.sass */
 .cw-month-head div {
   display: inline;
 }
 
-/* line 75, ../sass/screen.sass */
+/* line 75, ../sass/calendar-widget.sass */
 .cw-long-word {
   padding: 0px 2px;
 }
-/* line 30, ../sass/screen.sass */
+/* line 30, ../sass/calendar-widget.sass */
 .cw-long-word:hover {
   cursor: default;
   border-radius: 4px;
   background-color: #2c2c2c;
 }
 
-/* line 79, ../sass/screen.sass */
+/* line 79, ../sass/calendar-widget.sass */
 .cw-arrow-back {
   padding: 0px 2px;
   position: absolute;
   color: white;
   left: 6px;
 }
-/* line 39, ../sass/screen.sass */
+/* line 39, ../sass/calendar-widget.sass */
 .cw-arrow-back:hover {
   color: #cbfb00;
 }
-/* line 30, ../sass/screen.sass */
+/* line 30, ../sass/calendar-widget.sass */
 .cw-arrow-back:hover {
   cursor: default;
   border-radius: 4px;
   background-color: #2c2c2c;
 }
 
-/* line 84, ../sass/screen.sass */
+/* line 84, ../sass/calendar-widget.sass */
 .cw-arrow-forward {
   padding: 0px 2px;
   position: absolute;
   color: white;
   right: 6px;
 }
-/* line 39, ../sass/screen.sass */
+/* line 39, ../sass/calendar-widget.sass */
 .cw-arrow-forward:hover {
   color: #cbfb00;
 }
-/* line 30, ../sass/screen.sass */
+/* line 30, ../sass/calendar-widget.sass */
 .cw-arrow-forward:hover {
   cursor: default;
   border-radius: 4px;
   background-color: #2c2c2c;
 }
 
-/* line 89, ../sass/screen.sass */
+/* line 89, ../sass/calendar-widget.sass */
 .outer-scroll {
   overflow: hidden;
   position: absolute;
 }
-/* line 92, ../sass/screen.sass */
+/* line 92, ../sass/calendar-widget.sass */
 .outer-scroll div {
   display: block;
 }
 
-/* line 95, ../sass/screen.sass */
+/* line 95, ../sass/calendar-widget.sass */
 .cw-inner-scroll {
   overflow: auto;
   width: 100%;
@@ -104,7 +104,7 @@
   padding: 0px 8px;
 }
 
-/* line 101, ../sass/screen.sass */
+/* line 101, ../sass/calendar-widget.sass */
 .cw-day {
   display: inline-block;
   width: 16px;
@@ -119,35 +119,35 @@
 }
 
 /* Sequels for cw-day */
-/* line 30, ../sass/screen.sass */
+/* line 30, ../sass/calendar-widget.sass */
 .regular:hover {
   cursor: default;
   border-radius: 4px;
   background-color: #2c2c2c;
 }
 
-/* line 118, ../sass/screen.sass */
+/* line 118, ../sass/calendar-widget.sass */
 .first {
   border-left-color: #0e0e0e;
 }
 
-/* line 121, ../sass/screen.sass */
+/* line 121, ../sass/calendar-widget.sass */
 .last {
   border-right: #0e0e0e;
 }
 
-/* line 124, ../sass/screen.sass */
+/* line 124, ../sass/calendar-widget.sass */
 .selected {
   color: #cbfb00;
 }
 
-/* line 127, ../sass/screen.sass */
+/* line 127, ../sass/calendar-widget.sass */
 .of-week {
   padding-top: 0px;
   color: #999999;
 }
 
-/* line 131, ../sass/screen.sass */
+/* line 131, ../sass/calendar-widget.sass */
 .not-month {
   color: #323232;
 }
