@@ -360,8 +360,10 @@ function attachCalendar(dateInputId) {
             };
             monthSelect.onclick = function(e) {
                 var month = e.target;
-                currentDate.setMonth(month.value);
-                switchMonth(currentDate, dateInputId);
+                if (month.value) {
+                    currentDate.setMonth(month.value);
+                    switchMonth(currentDate, dateInputId);
+                }
             }
 
             // Year select handler
@@ -377,8 +379,10 @@ function attachCalendar(dateInputId) {
             };
             yearSelect.onclick = function(e) {
                 var year = e.target;
-                currentDate.setFullYear(year.value);
-                switchMonth(currentDate, dateInputId);
+                if (year.value) {
+                    currentDate.setFullYear(year.value);
+                    switchMonth(currentDate, dateInputId);
+                }
             }
 
 
