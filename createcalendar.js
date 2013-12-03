@@ -102,6 +102,7 @@ function renderScrollSelect(data, dateSource) {
     var scrollField = document.createElement("div");
     scrollField.className = CSS_REF.innerScroll;
     var item;
+    var scrollPos;
     for (var i = 0; i < data.length; i++) {
         item = setNode("div", scrollField, CSS_REF.longWord,
                          data[i]);
@@ -109,7 +110,7 @@ function renderScrollSelect(data, dateSource) {
             item.value = data[i]
             if (data[i] === dateSource.getFullYear()) {
                 item.className += CSS_REF.sequelSelected;
-                var scrollPos = i;
+                scrollPos = i;
             }
         } else {
             item.value = i;
@@ -120,6 +121,25 @@ function renderScrollSelect(data, dateSource) {
         }
     }
     return scrollField;
+}
+
+
+function setSelectToPos(selectBody, scrollUnit) {
+    var items = selectBody.childNodes;
+    for (var i = 0; i < items.length; i++) {
+        if (items[i].className.indexOf(CSS_REF.sequelSelected) != -1) {
+            break;
+        }
+    }
+    if (selectBody.parentNode.style.display == "none") {
+        selectBody.parentNode.style.display = "block";
+    }
+    if (i > 1) {
+       selectBody.scrollTop = (i - 1) * scrollUnit;
+    } else {
+       selectBody.scrollTop = 0;
+    }
+    selectBody.parentNode.style.display = "none";
 }
 
 
@@ -135,12 +155,13 @@ function layoutScrollSelect(idScroll, relatedInst, data, dateSource) {
     xOffset += relatedInst.offsetWidth / 2;
     xOffset += relatedInst.getBoundingClientRect().left;
     xOffset -= scrollBody.parentNode.getBoundingClientRect().left;
+    yOffsetUnit = relatedInst.offsetHeight;
     // Place scrollable select
-    scrollBody.style.display = "none";
     scrollBody.style.left = xOffset;
-    scrollBody.style.top = -1 * relatedInst.offsetHeight;
-    scrollBody.style.height = 9 * relatedInst.offsetHeight;
-
+    scrollBody.style.top = -1 * yOffsetUnit;
+    scrollBody.style.height = 10 * yOffsetUnit;
+    // Set scroll to selected item
+    setSelectToPos(scrollField, yOffsetUnit);
     return scrollBody;
 }
 
@@ -189,20 +210,21 @@ function switchMonth(dateSource, suffix) {
     var monthSelect = document.getElementById(monthSelectId);
     var months = renderScrollSelect(CONT.monthNames, dateSource);
     monthSelect.replaceChild(months, monthSelect.lastChild);
-    monthSelect.style.display = "none";
+    setSelectToPos(months, monthInst.offsetHeight);
     // Set years select
     var yearSelectId = DOM_ID.yearSelect + suffix;
     var yearSelect = document.getElementById(yearSelectId);
     var yearsData = yearsRange(dateSource.getFullYear(), 20);
     var years = renderScrollSelect(yearsData, dateSource);
     yearSelect.replaceChild(years, yearSelect.lastChild);
-    yearSelect.style.display = "none";
+    setSelectToPos(years, yearInst.offsetHeight);
     // Set month days
     var monthBodyId = DOM_ID.monthBody + suffix;
     var monthBody = document.getElementById(monthBodyId);
     var monthDays = renderMonth(dateSource);
     monthBody.replaceChild(monthDays, monthBody.lastChild);
 }
+
 
 function toggle(element) {
     if (element.style.display == "none") {
@@ -360,7 +382,7 @@ function attachCalendar(dateInputId) {
             };
             monthSelect.onclick = function(e) {
                 var month = e.target;
-                if (month.value) {
+                if (month.value || month.value === 0) {
                     currentDate.setMonth(month.value);
                     switchMonth(currentDate, dateInputId);
                 }
