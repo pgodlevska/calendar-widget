@@ -1,3 +1,12 @@
+function yearsRange(yearSource, delta) {
+    var range = new Array();
+    for (var i = yearSource - delta; i < yearSource + delta; ++i) {
+         range.push(i);
+    }
+    return range;
+}
+
+
 function monthInWeeks(dateSource, startWeek) {
     // Day week starts: 0 - Sunday, 1 - Monday and so on till 6 - Saturday.
     // 0 - Sunday by default.
@@ -89,6 +98,53 @@ function fillWeek(weekNode, daysArray, letters) {
 }
 
 
+function renderScrollSelect(data, dateSource) {
+    var scrollField = document.createElement("div");
+    scrollField.className = CSS_REF.innerScroll;
+    var item;
+    for (var i = 0; i < data.length; i++) {
+        item = setNode("div", scrollField, CSS_REF.longWord,
+                         data[i]);
+        if (parseInt(data[i])) {
+            item.value = data[i]
+            if (data[i] === dateSource.getFullYear()) {
+                item.className += CSS_REF.sequelSelected;
+                var scrollPos = i;
+            }
+        } else {
+            item.value = i;
+            if (i == dateSource.getMonth()) {
+                item.className += CSS_REF.sequelSelected;
+                scrollPos = i;
+            }
+        }
+    }
+    return scrollField;
+}
+
+
+function layoutScrollSelect(idScroll, relatedInst, data, dateSource) {
+    // Set scroll container and inner field
+    var scrollBody = setNode("div", relatedInst.parentNode,
+                             CSS_REF.field, "", idScroll);
+    scrollBody.className += CSS_REF.sequelOuterScroll;
+    var scrollField = renderScrollSelect(data, dateSource);
+    scrollBody.appendChild(scrollField);
+    // Calculate position
+    var xOffset = -scrollBody.offsetWidth / 2;
+    xOffset += relatedInst.offsetWidth / 2;
+    xOffset += relatedInst.getBoundingClientRect().left;
+    xOffset -= scrollBody.parentNode.getBoundingClientRect().left;
+    // Place scrollable select
+    scrollBody.style.display = "none";
+    scrollBody.style.left = xOffset;
+    scrollBody.style.top = -1 * relatedInst.offsetHeight;
+    scrollBody.style.height = 9 * relatedInst.offsetHeight;
+
+    return scrollBody;
+}
+
+
 function renderMonth(dateSource) {
     var today = new Date();
     var days = monthInWeeks(dateSource);
@@ -120,12 +176,28 @@ function renderMonth(dateSource) {
 
 
 function switchMonth(dateSource, suffix) {
+    // Set month name in header
     var monthInstId = DOM_ID.monthInst + suffix;
     var monthInst = document.getElementById(monthInstId);
     monthInst.innerHTML = CONT.monthNames[dateSource.getMonth()];
+    // Set year in header
     var yearInstId = DOM_ID.yearInst + suffix;
     var yearInst = document.getElementById(yearInstId);
     yearInst.innerHTML = dateSource.getFullYear();
+    // Set month select
+    var monthSelectId = DOM_ID.monthSelect + suffix;
+    var monthSelect = document.getElementById(monthSelectId);
+    var months = renderScrollSelect(CONT.monthNames, dateSource);
+    monthSelect.replaceChild(months, monthSelect.lastChild);
+    monthSelect.style.display = "none";
+    // Set years select
+    var yearSelectId = DOM_ID.yearSelect + suffix;
+    var yearSelect = document.getElementById(yearSelectId);
+    var yearsData = yearsRange(dateSource.getFullYear(), 20);
+    var years = renderScrollSelect(yearsData, dateSource);
+    yearSelect.replaceChild(years, yearSelect.lastChild);
+    yearSelect.style.display = "none";
+    // Set month days
     var monthBodyId = DOM_ID.monthBody + suffix;
     var monthBody = document.getElementById(monthBodyId);
     var monthDays = renderMonth(dateSource);
@@ -167,7 +239,8 @@ DOM_ID ={
     monthInst: "month_name_",
     yearInst: "year_name_",
     monthBody: "month_body_",
-    monthSelect: "month_select_"
+    monthSelect: "month_select_",
+    yearSelect: "year_select_"
 };
 
 /* Content Constants */
@@ -183,6 +256,7 @@ var CONT = {
 
 
 function createCalendar(container, dateSource, idSuffix){
+
     // Calendar layout
     container.className = CSS_REF.container;
     var field = setNode("div", container, CSS_REF.field);
@@ -205,30 +279,15 @@ function createCalendar(container, dateSource, idSuffix){
                                CONT.arrowForward, arrowForwardId);
 
     // Select month
-    var months = new Array();
     var monthSelectId = DOM_ID.monthSelect + idSuffix;
-    var scrollBody = setNode("div", monthHeader, CSS_REF.field,
-                             "", monthSelectId);
-    scrollBody.className += CSS_REF.sequelOuterScroll;
-    var monthField = setNode("div", scrollBody, CSS_REF.innerScroll);
-    var xOffset = monthInst.getBoundingClientRect().right;
-    xOffset -= monthInst.getBoundingClientRect().left;
-    xOffset /= 2;
-    scrollBody.style.left = xOffset;
-    for (var i = 0; i < 12; i++) {
-        months[i] = setNode("div", monthField, CSS_REF.longWord,
-                            CONT.monthNames[i]);
-        months[i].value = i;
-        if (i == dateSource.getMonth()) {
-            months[i].className += CSS_REF.sequelSelected;
-            var scrollPos = i;
-        }
-    }
-    var yOffset = -1 * months[0].offsetHeight;
-    scrollBody.style.height = 9 * months[0].offsetHeight;
-    monthField.scrollTop = scrollPos * months[0].offsetHeight;
-    scrollBody.style.top = yOffset;
-    scrollBody.style.display = "none";
+    layoutScrollSelect(monthSelectId, monthInst,
+                       CONT.monthNames, dateSource);
+
+    // Select year
+    var yearSelectId = DOM_ID.yearSelect + idSuffix;
+    var yearsData = yearsRange(dateSource.getFullYear(), 20);
+    layoutScrollSelect(yearSelectId, yearInst,
+                       yearsData, dateSource);
 
     // Month
     var monthBodyId = DOM_ID.monthBody + idSuffix;
@@ -286,15 +345,42 @@ function attachCalendar(dateInputId) {
             var monthInst = document.getElementById(monthInstId);
             var monthSelectId = DOM_ID.monthSelect + dateInputId;
             var monthSelect = document.getElementById(monthSelectId);
+
+            // Year select handler
+            var yearInstId = DOM_ID.yearInst + dateInputId;
+            var yearInst = document.getElementById(yearInstId);
+            var yearSelectId = DOM_ID.yearSelect + dateInputId;
+            var yearSelect = document.getElementById(yearSelectId);
+
             monthInst.onclick = function() {
+                if (yearSelect.style.display == "block") {
+                    yearSelect.style.display = "none";
+                }
                 monthSelect.style.display = "block";
             };
             monthSelect.onclick = function(e) {
                 var month = e.target;
                 currentDate.setMonth(month.value);
                 switchMonth(currentDate, dateInputId);
-                monthSelect.style.display = "none";
             }
+
+            // Year select handler
+            var yearInstId = DOM_ID.yearInst + dateInputId;
+            var yearInst = document.getElementById(yearInstId);
+            var yearSelectId = DOM_ID.yearSelect + dateInputId;
+            var yearSelect = document.getElementById(yearSelectId);
+            yearInst.onclick = function() {
+                if (monthSelect.style.display == "block") {
+                    monthSelect.style.display = "none";
+                }
+                yearSelect.style.display = "block";
+            };
+            yearSelect.onclick = function(e) {
+                var year = e.target;
+                currentDate.setFullYear(year.value);
+                switchMonth(currentDate, dateInputId);
+            }
+
 
             // Pick a date handler
             var monthBodyId = DOM_ID.monthBody + dateInputId;
@@ -307,6 +393,7 @@ function attachCalendar(dateInputId) {
                     var chosen = dateString(currentDate);
                     dateInput.value = chosen;
                     monthSelect.style.display = "none";
+                    yearSelect.style.display = "none";
                     container.style.display = "none";
                 }
             };
@@ -325,6 +412,8 @@ function attachCalendar(dateInputId) {
                 if (!show) {
                     if (monthSelect.style.display == "block") {
                         monthSelect.style.display = "none";
+                    } else if (yearSelect.style.display == "block") {
+                        yearSelect.style.display = "none";
                     } else if (container.style.display == "block") {
                         container.style.display = "none";
                     }
