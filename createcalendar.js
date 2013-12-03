@@ -63,6 +63,10 @@ function dateFromString(dateString) {
     }
 }
 
+function getCwElement(idPrefix, idSuffix) {
+    var elementId = idPrefix + idSuffix;
+    return document.getElementById(elementId);
+}
 
 function setNode(nodeType, nodeParent, nodeClass, nodeContent, nodeId) {
     var newNode = document.createElement(nodeType);
@@ -198,29 +202,24 @@ function renderMonth(dateSource) {
 
 function switchMonth(dateSource, suffix) {
     // Set month name in header
-    var monthInstId = DOM_ID.monthInst + suffix;
-    var monthInst = document.getElementById(monthInstId);
+    var monthInst = getCwElement(DOM_ID.monthInst, suffix);
     monthInst.innerHTML = CONT.monthNames[dateSource.getMonth()];
     // Set year in header
-    var yearInstId = DOM_ID.yearInst + suffix;
-    var yearInst = document.getElementById(yearInstId);
+    var yearInst = getCwElement(DOM_ID.yearInst, suffix);
     yearInst.innerHTML = dateSource.getFullYear();
     // Set month select
-    var monthSelectId = DOM_ID.monthSelect + suffix;
-    var monthSelect = document.getElementById(monthSelectId);
+    var monthSelect = getCwElement(DOM_ID.monthSelect, suffix);
     var months = renderScrollSelect(CONT.monthNames, dateSource);
     monthSelect.replaceChild(months, monthSelect.lastChild);
     setSelectToPos(months, monthInst.offsetHeight);
     // Set years select
-    var yearSelectId = DOM_ID.yearSelect + suffix;
-    var yearSelect = document.getElementById(yearSelectId);
+    var yearSelect = getCwElement(DOM_ID.yearSelect, suffix);
     var yearsData = yearsRange(dateSource.getFullYear(), 20);
     var years = renderScrollSelect(yearsData, dateSource);
     yearSelect.replaceChild(years, yearSelect.lastChild);
     setSelectToPos(years, yearInst.offsetHeight);
     // Set month days
-    var monthBodyId = DOM_ID.monthBody + suffix;
-    var monthBody = document.getElementById(monthBodyId);
+    var monthBody = getCwElement(DOM_ID.monthBody, suffix);
     var monthDays = renderMonth(dateSource);
     monthBody.replaceChild(monthDays, monthBody.lastChild);
 }
@@ -347,33 +346,27 @@ function attachCalendar(dateInputId) {
             createCalendar(container, currentDate, dateInputId);
 
             // Month back handler
-            var arrowBackId = DOM_ID.arrowBack + dateInputId;
-            var monthBack = document.getElementById(arrowBackId);
+            var monthBack = getCwElement(DOM_ID.arrowBack, dateInputId);
             monthBack.onclick = function() {
                 currentDate.setMonth(currentDate.getMonth() - 1);
                 switchMonth(currentDate, dateInputId);
             };
 
             // Month forward handler
-            var arrowForwardId = DOM_ID.arrowForward + dateInputId;
-            var monthForward = document.getElementById(arrowForwardId);
+            var monthForward = getCwElement(DOM_ID.arrowForward, dateInputId);
             monthForward.onclick = function() {
                 currentDate.setMonth(currentDate.getMonth() + 1);
                 switchMonth(currentDate, dateInputId);
             };
 
             // Month select handler
-            var monthInstId = DOM_ID.monthInst + dateInputId;
-            var monthInst = document.getElementById(monthInstId);
-            var monthSelectId = DOM_ID.monthSelect + dateInputId;
-            var monthSelect = document.getElementById(monthSelectId);
+            var monthInst = getCwElement(DOM_ID.monthInst, dateInputId);
+            var monthSelect = getCwElement(DOM_ID.monthSelect, dateInputId);
 
             // Year select handler
-            var yearInstId = DOM_ID.yearInst + dateInputId;
-            var yearInst = document.getElementById(yearInstId);
-            var yearSelectId = DOM_ID.yearSelect + dateInputId;
-            var yearSelect = document.getElementById(yearSelectId);
-
+            var yearInst = getCwElement(DOM_ID.yearInst, dateInputId);
+            var yearSelect = getCwElement(DOM_ID.yearSelect, dateInputId);
+            // Month select handler
             monthInst.onclick = function() {
                 if (yearSelect.style.display == "block") {
                     yearSelect.style.display = "none";
@@ -389,10 +382,6 @@ function attachCalendar(dateInputId) {
             }
 
             // Year select handler
-            var yearInstId = DOM_ID.yearInst + dateInputId;
-            var yearInst = document.getElementById(yearInstId);
-            var yearSelectId = DOM_ID.yearSelect + dateInputId;
-            var yearSelect = document.getElementById(yearSelectId);
             yearInst.onclick = function() {
                 if (monthSelect.style.display == "block") {
                     monthSelect.style.display = "none";
@@ -407,10 +396,8 @@ function attachCalendar(dateInputId) {
                 }
             }
 
-
             // Pick a date handler
-            var monthBodyId = DOM_ID.monthBody + dateInputId;
-            var monthBody = document.getElementById(monthBodyId);
+            var monthBody = getCwElement(DOM_ID.monthBody, dateInputId);
             monthBody.onclick = function(e) {
                 var day = e.target;
                 var dayClass = day.className;
