@@ -1,6 +1,6 @@
-function yearsRange(yearSource, delta) {
+function yearsRange(year, delta) {
     var range = new Array();
-    for (var i = yearSource - delta; i < yearSource + delta; ++i) {
+    for (var i = year - delta; i < year + delta; ++i) {
          range.push(i);
     }
     return range;
@@ -9,22 +9,20 @@ function yearsRange(yearSource, delta) {
 
 function monthInWeeks(dateSource, startWeek) {
     // Day week starts: 0 - Sunday, 1 - Monday and so on till 6 - Saturday.
-    // 0 - Sunday by default.
     startWeek = startWeek || 0;
 
     var daysInWeeks = new Array();
-    // First day of month defined by given date dateSource
+    // First day of month defined by given dateSource
     var d = new Date(dateSource.getFullYear(), dateSource.getMonth(), 1);
     var firstOfNextMonth = new Date(dateSource.getFullYear(),
                                     dateSource.getMonth() + 1, 1);
-    // If 1st day of month is not the start of the week
-    // Look for latest start of the week in previous month
+    // Look for latest start of the week before 1st of the month.
     if (d.getDay() != startWeek) {
         d.setDate(d.getDate() - d.getDay() + startWeek);
         }
 
     var i = 0;
-    // All weeks with this month days
+    // All weeks contain this month days
     while (d < firstOfNextMonth) {
         // Arrange days in weeks
         daysInWeeks[i] = new Array();
@@ -39,6 +37,7 @@ function monthInWeeks(dateSource, startWeek) {
 
 
 function dateString(dateSource) {
+    // Date format "yyyy-mm-dd"
     var dateString;
     dateString = dateSource.getFullYear().toString();
     dateString += "-";
@@ -50,6 +49,7 @@ function dateString(dateSource) {
 
 
 function dateFromString(dateString) {
+    // Date format "yyyy-mm-dd"
     var patt = new RegExp("^([0-9]{4}).([0-9]{2}).([0-9]{2})");
     var found = dateString.match(patt);
     if (found) {
@@ -63,13 +63,15 @@ function dateFromString(dateString) {
     }
 }
 
+
 function getCwElement(idPrefix, idSuffix) {
     var elementId = idPrefix + idSuffix;
     return document.getElementById(elementId);
 }
 
-function setNode(nodeType, nodeParent, nodeClass, nodeContent, nodeId) {
-    var newNode = document.createElement(nodeType);
+
+function setNode(nodeParent, nodeClass, nodeContent, nodeId) {
+    var newNode = document.createElement("div");
     nodeParent.appendChild(newNode);
     if (nodeClass) {
         newNode.className = nodeClass;
@@ -89,7 +91,7 @@ function fillWeek(weekNode, daysArray, letters) {
 
     var day;
     for (var i = 0; i < 7; i++) {
-        day = setNode("span", weekNode, CSS_REF.day, daysArray[i]);
+        day = setNode(weekNode, CSS_REF.day, daysArray[i]);
         if (letters) {
             day.className += CSS_REF.sequelDayOfWeek;
         }
@@ -108,7 +110,7 @@ function renderScrollSelect(data, dateSource) {
     var item;
     var scrollPos;
     for (var i = 0; i < data.length; i++) {
-        item = setNode("div", scrollField, CSS_REF.longWord,
+        item = setNode(scrollField, CSS_REF.longWord,
                          data[i]);
         if (parseInt(data[i])) {
             item.value = data[i]
@@ -149,7 +151,7 @@ function setSelectToPos(selectBody, scrollUnit) {
 
 function layoutScrollSelect(idScroll, relatedInst, data, dateSource) {
     // Set scroll container and inner field
-    var scrollBody = setNode("div", relatedInst.parentNode,
+    var scrollBody = setNode(relatedInst.parentNode,
                              CSS_REF.field, "", idScroll);
     scrollBody.className += CSS_REF.sequelOuterScroll;
     var scrollField = renderScrollSelect(data, dateSource);
@@ -172,13 +174,13 @@ function layoutScrollSelect(idScroll, relatedInst, data, dateSource) {
 
 function renderMonth(dateSource) {
     var today = new Date();
-    var days = monthInWeeks(dateSource);
+    var days = monthInWeeks(dateSource, CONT.startWeek);
     var monthDays = document.createElement("div");
 
     for (var i = 0; i < days.length; i++) {
-        week = setNode("div", monthDays);
+        week = setNode(monthDays);
         fillWeek(week, days[i]);
-        daySpans = week.getElementsByTagName("span");
+        daySpans = week.childNodes;
         for (var j = 0; j < daySpans.length; j++) {
             dayNo = parseInt(daySpans[j].innerHTML);
             // Find days not from rendered month
@@ -214,7 +216,7 @@ function switchMonth(dateSource, suffix) {
     setSelectToPos(months, monthInst.offsetHeight);
     // Set years select
     var yearSelect = getCwElement(DOM_ID.yearSelect, suffix);
-    var yearsData = yearsRange(dateSource.getFullYear(), 20);
+    var yearsData = yearsRange(dateSource.getFullYear(), CONT.yearsDelta);
     var years = renderScrollSelect(yearsData, dateSource);
     yearSelect.replaceChild(years, yearSelect.lastChild);
     setSelectToPos(years, yearInst.offsetHeight);
@@ -266,13 +268,16 @@ DOM_ID ={
 
 /* Content Constants */
 var CONT = {
+    // 0 - Sunday, 1 - Monday, .. 6 - Saturday
+    startWeek: 0,
     arrowBack: "&#9668;",
     arrowForward: "&#9658;",
     monthNames: ["January", "February", "March", "April",
                   "May", "June", "July", "August",
                   "September", "October", "November", "December"
                  ],
-    dayShortNames: ["S", "M", "T", "W", "T", "F", "S"]
+    dayShortNames: ["S", "M", "T", "W", "T", "F", "S"],
+    yearsDelta: 20
 };
 
 
@@ -280,23 +285,23 @@ function createCalendar(container, dateSource, idSuffix){
 
     // Calendar layout
     container.className = CSS_REF.container;
-    var field = setNode("div", container, CSS_REF.field);
+    var field = setNode(container, CSS_REF.field);
 
     // Month Header
-    var monthHeader = setNode("div", field, CSS_REF.monthHeader);
+    var monthHeader = setNode(field, CSS_REF.monthHeader);
     var arrowBackId = DOM_ID.arrowBack + idSuffix;
-    var arrowBack = setNode("span", monthHeader, CSS_REF.arrowBack,
+    var arrowBack = setNode(monthHeader, CSS_REF.arrowBack,
                             CONT.arrowBack, arrowBackId);
     var monthInstId = DOM_ID.monthInst + idSuffix;
     var cssCompClass = CSS_REF.longWord + CSS_REF.sequelSelected;
-    var monthInst = setNode("span", monthHeader, cssCompClass,
+    var monthInst = setNode(monthHeader, cssCompClass,
                             CONT.monthNames[dateSource.getMonth()],
                             monthInstId);
     var yearInstId = DOM_ID.yearInst + idSuffix;
-    var yearInst = setNode("span", monthHeader, cssCompClass,
+    var yearInst = setNode(monthHeader, cssCompClass,
                            dateSource.getFullYear(), yearInstId);
     var arrowForwardId = DOM_ID.arrowForward + idSuffix;
-    var arrowForward = setNode("span", monthHeader, CSS_REF.arrowForward,
+    var arrowForward = setNode(monthHeader, CSS_REF.arrowForward,
                                CONT.arrowForward, arrowForwardId);
 
     // Select month
@@ -312,9 +317,9 @@ function createCalendar(container, dateSource, idSuffix){
 
     // Month
     var monthBodyId = DOM_ID.monthBody + idSuffix;
-    var monthBody = setNode("div", field, '', '', monthBodyId);
+    var monthBody = setNode(field, "", "", monthBodyId);
     // Header with week days
-    var weekHead = setNode("div", monthBody);
+    var weekHead = setNode(monthBody);
     fillWeek(weekHead, CONT.dayShortNames, true);
     // Month days
     var monthDays = renderMonth(dateSource);
