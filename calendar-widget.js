@@ -19,7 +19,8 @@ var SETT = {
     // Week starts from: 0 - Sunday, 1 - Monday, .. 6 - Saturday.
     startWeek: 0,
     // Number of years in select before and after selected.
-    yearsDelta: 20
+    yearsDelta: 20,
+    maxYearsSelectLength: 300
 };
 
 var CONT = {
@@ -66,10 +67,24 @@ var CSS_REF = {
 
 /* Preparing data functions */
 
-function yearsRange(year, delta) {
+function yearsRange(year, delta, both) {
+    both = both || false;
     var range = new Array();
-    for (var i = year - delta; i < year + delta; ++i) {
-         range.push(i);
+    if (both) {
+        delta = Math.abs(delta);
+        for (var i = year - delta; i < year + delta; i++) {
+            range.push(i);
+        }
+    } else {
+        if (delta > 0) {
+            for (var i = year; i < year + delta; i++) {
+                range.push(i);
+            }
+        } else if (delta < 0) {
+            for (var i = year; i > year + delta; i--) {
+                range.push(i);
+            }
+        }
     }
     return range;
 }
@@ -187,22 +202,62 @@ function renderScrollSelect(data, dateSource) {
     return scrollField;
 }
 
-function setSelectToPos(selectBody, scrollUnit) {
+function closeSelectInPos(selectBody) {
+    if (selectBody.parentNode.style.display == "none") {
+        selectBody.parentNode.style.display = "block";
+    }
     var items = selectBody.childNodes;
     for (var i = 0; i < items.length; i++) {
         if (items[i].className.indexOf(CSS_REF.sequelSelected) != -1) {
             break;
         }
     }
-    if (selectBody.parentNode.style.display == "none") {
-        selectBody.parentNode.style.display = "block";
-    }
     if (i > 1) {
-       selectBody.scrollTop = (i - 1) * scrollUnit;
+       selectBody.scrollTop = (i - 1) * items[0].offsetHeight;
     } else {
        selectBody.scrollTop = 0;
     }
     selectBody.parentNode.style.display = "none";
+}
+
+function extendYearsSelect(selectBody) {
+    // appendTo - string defines add years to start or to end of select
+    // values: "start" and "end" respectively
+    if (selectBody.scrollTop > 1 && selectBody.scrollTop < 10) {
+        var start = true;
+    } else if (selectBody.scrollTop == selectBody.scrollTopMax) {
+        var start = false;
+    } else {
+        return false;
+    }
+    var selectItems = selectBody.childNodes;
+    var selectLength = selectItems.length;
+    if (selectLength >= SETT.maxYearsSelectLength) {
+        return false;
+    }
+    var item;
+    if (start) {
+        var year = parseInt(selectItems[0].innerHTML);
+        var delta = -SETT.yearsDelta;
+    } else {
+        var year = parseInt(selectItems[selectLength-1].innerHTML);
+        var delta = SETT.yearsDelta;
+    }
+    var years = yearsRange(year, delta);
+    for (var i = 1; i < years.length; i++) {
+        item = document.createElement("div");
+        item.className = CSS_REF.longWord;
+        item.innerHTML = years[i];
+        item.value = years[i];
+        if (start) {
+            selectBody.insertBefore(item, selectBody.firstChild);
+        } else {
+            selectBody.appendChild(item);
+        }
+    }
+    if (start) {
+        selectBody.scrollTop = (SETT.yearsDelta - 1) * item.offsetHeight;
+    }
 }
 
 
@@ -228,7 +283,8 @@ function layoutScrollSelect(idScroll, relatedInst, data, dateSource) {
     scrollBody.style.height = 10 * yOffsetUnit;
 
     // Set scroll to selected item
-    setSelectToPos(scrollField, yOffsetUnit);
+    closeSelectInPos(scrollField);
+    return scrollBody;
 }
 /* Eof Scrollable select render functions */
 
@@ -322,10 +378,16 @@ function createCalendar(container, dateSource, idSuffix){
                        dateSource);
 
     // Select year
-    layoutScrollSelect(DOM_ID.yearSelect + idSuffix,
-                       yearInst,
-                       yearsRange(dateSource.getFullYear(), SETT.yearsDelta),
-                       dateSource);
+    var yearsData = yearsRange(dateSource.getFullYear(),
+                               SETT.yearsDelta,
+                               true);
+    var yearSelect = layoutScrollSelect(DOM_ID.yearSelect + idSuffix,
+                                        yearInst,
+                                        yearsData,
+                                        dateSource);
+    yearSelect.firstChild.onscroll = function() {
+        extendYearsSelect(this);
+    };
 
     // Month
     var monthBody = setNode(field, "", "", DOM_ID.monthBody + idSuffix);
@@ -354,14 +416,19 @@ function switchMonth(dateSource, suffix) {
     var monthSelect = getCwElement(DOM_ID.monthSelect, suffix);
     var months = renderScrollSelect(CONT.monthNames, dateSource);
     monthSelect.replaceChild(months, monthSelect.lastChild);
-    setSelectToPos(months, monthInst.offsetHeight);
+    closeSelectInPos(months);
 
     // Set years select
     var yearSelect = getCwElement(DOM_ID.yearSelect, suffix);
-    var yearsData = yearsRange(dateSource.getFullYear(), SETT.yearsDelta);
+    var yearsData = yearsRange(dateSource.getFullYear(),
+                               SETT.yearsDelta,
+                               true);
     var years = renderScrollSelect(yearsData, dateSource);
     yearSelect.replaceChild(years, yearSelect.lastChild);
-    setSelectToPos(years, yearInst.offsetHeight);
+    years.onscroll = function() {
+         extendYearsSelect(this);
+    };
+    closeSelectInPos(years);
 
     // Set month days
     var monthBody = getCwElement(DOM_ID.monthBody, suffix);
@@ -422,7 +489,7 @@ function attachCalendar(dateInputId) {
             // Month select
             monthInst.onclick = function() {
                 if (yearSelect.style.display == "block") {
-                    yearSelect.style.display = "none";
+                    closeSelectInPos(yearSelect.firstChild);
                 }
                 monthSelect.style.display = "block";
             };
@@ -437,7 +504,7 @@ function attachCalendar(dateInputId) {
             // Year select
             yearInst.onclick = function() {
                 if (monthSelect.style.display == "block") {
-                    monthSelect.style.display = "none";
+                    closeSelectInPos(monthSelect.firstChild);
                 }
                 yearSelect.style.display = "block";
             };
@@ -447,7 +514,7 @@ function attachCalendar(dateInputId) {
                     currentDate.setFullYear(year.value);
                     switchMonth(currentDate, dateInputId);
                 }
-            }
+            };
 
             // Pick a date
             var monthBody = getCwElement(DOM_ID.monthBody, dateInputId);
@@ -457,8 +524,8 @@ function attachCalendar(dateInputId) {
                 if (dayClass.indexOf(CSS_REF.sequelDayRegular) != -1) {
                     currentDate.setDate(day.innerHTML);
                     dateInput.value = dateString(currentDate);
-                    monthSelect.style.display = "none";
-                    yearSelect.style.display = "none";
+                    closeSelectInPos(monthSelect.firstChild);
+                    closeSelectInPos(yearSelect.firstChild);
                     container.style.display = "none";
                 }
             };
@@ -476,9 +543,9 @@ function attachCalendar(dateInputId) {
                 }
                 if (!show) {
                     if (monthSelect.style.display == "block") {
-                        monthSelect.style.display = "none";
+                        closeSelectInPos(monthSelect.firstChild);
                     } else if (yearSelect.style.display == "block") {
-                        yearSelect.style.display = "none";
+                        closeSelectInPos(yearSelect.firstChild);
                     } else if (container.style.display == "block") {
                         container.style.display = "none";
                     }
