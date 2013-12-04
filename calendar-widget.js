@@ -19,7 +19,8 @@ var SETT = {
     // Week starts from: 0 - Sunday, 1 - Monday, .. 6 - Saturday.
     startWeek: 0,
     // Number of years in select before and after selected.
-    yearsDelta: 20,
+    yearsDelta: 10,
+    // Max number of items in extended year select
     maxYearsSelectLength: 300
 };
 
@@ -123,7 +124,8 @@ function monthInWeeks(dateSource, startWeek) {
     // First day of month defined by given dateSource
     var d = new Date(dateSource.getFullYear(), dateSource.getMonth(), 1);
     var firstOfNextMonth = new Date(dateSource.getFullYear(),
-                                    dateSource.getMonth() + 1, 1);
+                                    dateSource.getMonth() + 1,
+                                    1);
     // Look for latest start of the week before 1st of the month.
     if (d.getDay() != startWeek) {
         d.setDate(d.getDate() - d.getDay() + startWeek);
@@ -202,10 +204,11 @@ function renderScrollSelect(data, dateSource) {
     return scrollField;
 }
 
-function closeSelectInPos(selectBody) {
-    if (selectBody.parentNode.style.display == "none") {
-        selectBody.parentNode.style.display = "block";
+function closeSelectInPos(select) {
+    if (select.style.display == "none") {
+        select.style.display = "block";
     }
+    var selectBody = select.firstChild;
     var items = selectBody.childNodes;
     for (var i = 0; i < items.length; i++) {
         if (items[i].className.indexOf(CSS_REF.sequelSelected) != -1) {
@@ -217,7 +220,7 @@ function closeSelectInPos(selectBody) {
     } else {
        selectBody.scrollTop = 0;
     }
-    selectBody.parentNode.style.display = "none";
+    select.style.display = "none";
 }
 
 function extendYearsSelect(selectBody) {
@@ -283,7 +286,7 @@ function layoutScrollSelect(idScroll, relatedInst, data, dateSource) {
     scrollBody.style.height = 10 * yOffsetUnit;
 
     // Set scroll to selected item
-    closeSelectInPos(scrollField);
+    closeSelectInPos(scrollBody);
     return scrollBody;
 }
 /* Eof Scrollable select render functions */
@@ -416,7 +419,7 @@ function switchMonth(dateSource, suffix) {
     var monthSelect = getCwElement(DOM_ID.monthSelect, suffix);
     var months = renderScrollSelect(CONT.monthNames, dateSource);
     monthSelect.replaceChild(months, monthSelect.lastChild);
-    closeSelectInPos(months);
+    closeSelectInPos(monthSelect);
 
     // Set years select
     var yearSelect = getCwElement(DOM_ID.yearSelect, suffix);
@@ -428,7 +431,7 @@ function switchMonth(dateSource, suffix) {
     years.onscroll = function() {
          extendYearsSelect(this);
     };
-    closeSelectInPos(years);
+    closeSelectInPos(yearSelect);
 
     // Set month days
     var monthBody = getCwElement(DOM_ID.monthBody, suffix);
@@ -489,7 +492,7 @@ function attachCalendar(dateInputId) {
             // Month select
             monthInst.onclick = function() {
                 if (yearSelect.style.display == "block") {
-                    closeSelectInPos(yearSelect.firstChild);
+                    closeSelectInPos(yearSelect);
                 }
                 monthSelect.style.display = "block";
             };
@@ -505,7 +508,7 @@ function attachCalendar(dateInputId) {
             // Year select
             yearInst.onclick = function() {
                 if (monthSelect.style.display == "block") {
-                    closeSelectInPos(monthSelect.firstChild);
+                    closeSelectInPos(monthSelect);
                 }
                 yearSelect.style.display = "block";
             };
@@ -527,8 +530,8 @@ function attachCalendar(dateInputId) {
                 if (dayClass.indexOf(CSS_REF.sequelDayRegular) != -1) {
                     currentDate.setDate(day.innerHTML);
                     dateInput.value = dateString(currentDate);
-                    closeSelectInPos(monthSelect.firstChild);
-                    closeSelectInPos(yearSelect.firstChild);
+                    closeSelectInPos(monthSelect);
+                    closeSelectInPos(yearSelect);
                     container.style.display = "none";
                 }
             };
@@ -546,9 +549,9 @@ function attachCalendar(dateInputId) {
                 }
                 if (!show) {
                     if (monthSelect.style.display == "block") {
-                        closeSelectInPos(monthSelect.firstChild);
+                        closeSelectInPos(monthSelect);
                     } else if (yearSelect.style.display == "block") {
-                        closeSelectInPos(yearSelect.firstChild);
+                        closeSelectInPos(yearSelect);
                     } else if (container.style.display == "block") {
                         container.style.display = "none";
                     }
