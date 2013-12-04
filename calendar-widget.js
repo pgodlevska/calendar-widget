@@ -495,6 +495,7 @@ function attachCalendar(dateInputId) {
             };
             monthSelect.onclick = function(e) {
                 var month = e.target;
+                e.stopPropagation();
                 if (month.value || month.value === 0) {
                     currentDate.setMonth(month.value);
                     switchMonth(currentDate, dateInputId);
@@ -510,6 +511,7 @@ function attachCalendar(dateInputId) {
             };
             yearSelect.onclick = function(e) {
                 var year = e.target;
+                e.stopPropagation();
                 if (year.value) {
                     currentDate.setFullYear(year.value);
                     switchMonth(currentDate, dateInputId);
@@ -520,6 +522,7 @@ function attachCalendar(dateInputId) {
             var monthBody = getCwElement(DOM_ID.monthBody, dateInputId);
             monthBody.onclick = function(e) {
                 var day = e.target;
+                e.stopPropagation();
                 var dayClass = day.className;
                 if (dayClass.indexOf(CSS_REF.sequelDayRegular) != -1) {
                     currentDate.setDate(day.innerHTML);
