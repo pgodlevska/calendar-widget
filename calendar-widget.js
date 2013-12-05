@@ -47,14 +47,12 @@ var DOM_ID = {
 var CSS_REF = {
     container: "cw-container",
     field: "cw-field",
-    innerScroll: "cw-inner-scroll",
-    sequelOuterScroll: " outer-scroll",
+    selectBody: "cw-inner-scroll",
+    sequelSelectPlace: " outer-scroll",
     monthHeader: "cw-month-head",
     arrowBack: "cw-arrow-back",
     arrowForward: "cw-arrow-forward",
     longWord: "cw-long-word",
-    innerScroll: "cw-inner-scroll",
-    sequelOuterScroll: " outer-scroll",
     day: "cw-day",
     sequelDayFirst: " first",
     sequelDayLast: " last",
@@ -151,8 +149,7 @@ function monthInWeeks(dateSource, startWeek) {
 /* Elements elementary functions */
 
 function getCwElement(idPrefix, idSuffix) {
-    var elementId = idPrefix + idSuffix;
-    return document.getElementById(elementId);
+    return document.getElementById(idPrefix + idSuffix);
 }
 
 function setNode(nodeParent, nodeClass, nodeContent, nodeId) {
@@ -183,12 +180,12 @@ function toggle(element) {
 /* Scrollable select render functions */
 
 function renderScrollSelect(data, dateSource) {
-    var scrollField = document.createElement("div");
-    scrollField.className = CSS_REF.innerScroll;
+    var selectBody = document.createElement("div");
+    selectBody.className = CSS_REF.selectBody;
     var item;
 
     for (var i = 0; i < data.length; i++) {
-        item = setNode(scrollField, CSS_REF.longWord, data[i]);
+        item = setNode(selectBody, CSS_REF.longWord, data[i]);
         if (parseInt(data[i])) {
             item.value = data[i];
             if (data[i] === dateSource.getFullYear()) {
@@ -201,14 +198,29 @@ function renderScrollSelect(data, dateSource) {
             }
         }
     }
-    return scrollField;
+    return selectBody;
 }
 
-function closeSelectInPos(select) {
-    if (select.style.display == "none") {
-        select.style.display = "block";
+function selectXPos(selectPlace, relatedInst) {
+    if (selectPlace.style.display == "none") {
+        selectPlace.style.display = "block";
     }
-    var selectBody = select.firstChild;
+
+    // Calculate position
+    var xOffset = -selectPlace.offsetWidth / 2;
+    xOffset += relatedInst.offsetWidth / 2;
+    xOffset += relatedInst.getBoundingClientRect().left;
+    xOffset -= selectPlace.parentNode.getBoundingClientRect().left;
+
+    // Place scrollable select
+    selectPlace.style.left = xOffset;
+}
+
+function closeSelectInPos(selectPlace) {
+    if (selectPlace.style.display == "none") {
+        selectPlace.style.display = "block";
+    }
+    var selectBody = selectPlace.firstChild;
     var items = selectBody.childNodes;
     for (var i = 0; i < items.length; i++) {
         if (items[i].className.indexOf(CSS_REF.sequelSelected) != -1) {
@@ -220,13 +232,13 @@ function closeSelectInPos(select) {
     } else {
        selectBody.scrollTop = 0;
     }
-    select.style.display = "none";
+    selectPlace.style.display = "none";
 }
 
 function extendYearsSelect(selectBody) {
     // appendTo - string defines add years to start or to end of select
     // values: "start" and "end" respectively
-    if (selectBody.scrollTop > 1 && selectBody.scrollTop < 10) {
+    if (selectBody.scrollTop > 0 && selectBody.scrollTop < 10) {
         var start = true;
     } else if (selectBody.scrollTop == selectBody.scrollTopMax) {
         var start = false;
@@ -263,31 +275,24 @@ function extendYearsSelect(selectBody) {
     }
 }
 
-
-function layoutScrollSelect(idScroll, relatedInst, data, dateSource) {
+function layoutScrollSelect(idSelect, relatedInst, data, dateSource) {
 
     // Set scroll container and inner field
-    var scrollBody = setNode(relatedInst.parentNode,
-                             CSS_REF.field, "", idScroll);
-    scrollBody.className += CSS_REF.sequelOuterScroll;
-    var scrollField = renderScrollSelect(data, dateSource);
-    scrollBody.appendChild(scrollField);
+    var selectPlace = setNode(relatedInst.parentNode,
+                              CSS_REF.field, "", idSelect);
+    selectPlace.className += CSS_REF.sequelSelectPlace;
+    var selectBody = renderScrollSelect(data, dateSource);
+    selectPlace.appendChild(selectBody);
 
-    // Calculate position
-    var xOffset = -scrollBody.offsetWidth / 2;
-    xOffset += relatedInst.offsetWidth / 2;
-    xOffset += relatedInst.getBoundingClientRect().left;
-    xOffset -= scrollBody.parentNode.getBoundingClientRect().left;
-    yOffsetUnit = relatedInst.offsetHeight;
-
-    // Place scrollable select
-    scrollBody.style.left = xOffset;
-    scrollBody.style.top = -1 * yOffsetUnit;
-    scrollBody.style.height = 10 * yOffsetUnit;
+    // Place scroll initially
+    var yOffsetUnit = relatedInst.offsetHeight;
+    selectPlace.style.top = -1 * yOffsetUnit;
+    selectPlace.style.height = 10 * yOffsetUnit;
+    selectXPos(selectPlace, relatedInst);
 
     // Set scroll to selected item
-    closeSelectInPos(scrollBody);
-    return scrollBody;
+    closeSelectInPos(selectPlace);
+    return selectPlace;
 }
 /* Eof Scrollable select render functions */
 
@@ -419,6 +424,7 @@ function switchMonth(dateSource, suffix) {
     var monthSelect = getCwElement(DOM_ID.monthSelect, suffix);
     var months = renderScrollSelect(CONT.monthNames, dateSource);
     monthSelect.replaceChild(months, monthSelect.lastChild);
+    selectXPos(monthSelect, monthInst);
     closeSelectInPos(monthSelect);
 
     // Set years select
@@ -431,6 +437,7 @@ function switchMonth(dateSource, suffix) {
     years.onscroll = function() {
          extendYearsSelect(this);
     };
+    selectXPos(yearSelect, yearInst);
     closeSelectInPos(yearSelect);
 
     // Set month days
