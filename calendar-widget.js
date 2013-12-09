@@ -238,9 +238,10 @@ function closeSelectInPos(selectPlace) {
 function extendYearsSelect(selectBody) {
     // appendTo - string defines add years to start or to end of select
     // values: "start" and "end" respectively
-    if (selectBody.scrollTop > 0 && selectBody.scrollTop < 10) {
+    if (selectBody.scrollTop > 0 && selectBody.scrollTop < 50) {
         var start = true;
-    } else if (selectBody.scrollTop == selectBody.scrollTopMax) {
+    } else if (selectBody.scrollTop ==
+                   selectBody.scrollHeight - selectBody.offsetHeight) {
         var start = false;
     } else {
         return false;
