@@ -1,18 +1,14 @@
-/* Constants, config chunks */
+var calendarWidget = function() {
 
-/* Chunk of JS to attach calendar to input with id="date_input" */
-window.addEventListener("load", function() {
-    attachCalendar("date_input");
-    attachCalendar("another_date_input");
-});
+/* Configs, constants */
 
 var SETT = {
     // Week starts from: 0 - Sunday, 1 - Monday, .. 6 - Saturday.
-    startWeek: 0,
+    weekStart: 0,
     // Number of years in select before and after selected.
     yearsDelta: 10,
     // Max number of items in extended year select
-    maxYearsSelectLength: 300
+    maxSelectLength: 300
 };
 
 var CONT = {
@@ -92,7 +88,7 @@ function dateString(dateSource) {
 
 function dateFromString(dateString) {
     // Date format "yyyy-mm-dd"
-    var patt = new RegExp("^([0-9]{4}).([0-9]{2}).([0-9]{2})");
+    var patt = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})");
     var found = dateString.match(patt);
     if (found) {
         var date = new Date();
@@ -105,9 +101,9 @@ function dateFromString(dateString) {
     }
 }
 
-function monthInWeeks(dateSource, startWeek) {
+function monthInWeeks(dateSource, weekStart) {
     // Day week starts: 0 - Sunday, 1 - Monday and so on till 6 - Saturday.
-    startWeek = startWeek || 0;
+    weekStart = weekStart || 0;
 
     var daysInWeeks = new Array();
     // First day of month defined by given dateSource
@@ -116,8 +112,8 @@ function monthInWeeks(dateSource, startWeek) {
                                     dateSource.getMonth() + 1,
                                     1);
     // Look for latest start of the week before 1st of the month.
-    if (d.getDay() != startWeek) {
-        d.setDate(d.getDate() - d.getDay() + startWeek);
+    if (d.getDay() != weekStart) {
+        d.setDate(d.getDate() - d.getDay() + weekStart);
         }
 
     var i = 0;
@@ -239,7 +235,7 @@ function extendYearsSelect(selectBody) {
     }
     var selectItems = selectBody.childNodes;
     var selectLength = selectItems.length;
-    if (selectLength >= SETT.maxYearsSelectLength) {
+    if (selectLength >= SETT.maxSelectLength) {
         return false;
     }
     var item;
@@ -311,7 +307,7 @@ function fillWeek(weekNode, daysArray, letters) {
 function renderMonth(dateSource) {
     // Render numeric part of month display
     var today = new Date();
-    var days = monthInWeeks(dateSource, SETT.startWeek);
+    var days = monthInWeeks(dateSource, SETT.weekStart);
     var monthDays = document.createElement("div");
 
     var i;
@@ -440,7 +436,12 @@ function createCalendar(container, dateSource, idSuffix){
     var monthBody = setNode(field, "", "", DOM_ID.monthBody + idSuffix);
     // Header with week days
     var weekHead = setNode(monthBody);
-    fillWeek(weekHead, CONT.dayShortNames, true);
+    var weekDays = new Array();
+    for (var i = 0; i < 7; i++) {
+        m = (i + SETT.weekStart) % 7;
+        weekDays.push(CONT.dayShortNames[m]);
+    }
+    fillWeek(weekHead, weekDays, true);
     // Month days
     var monthDays = renderMonth(dateSource);
     monthBody.appendChild(monthDays);
@@ -498,7 +499,6 @@ function switchMonth(dateSource, suffix) {
 }
 /* Eof Switch month functions */
 
-
 function attachCalendar(dateInputId) {
     var dateInput = document.getElementById(dateInputId);
     // Test element to attach calendar
@@ -525,7 +525,8 @@ function attachCalendar(dateInputId) {
         // Create calendar if container is empty
         if (!container.hasChildNodes()) {
             createCalendar(container, currentDate, dateInputId);
-            // Close calendar
+
+            // Close calendar handler
             document.addEventListener("mousedown", function(e) {
                 var target = e.target;
                 var show = false;
@@ -554,6 +555,7 @@ function attachCalendar(dateInputId) {
                     }
                 }
             }, true);
+
             // Disable user input
             this.onkeydown = function(e) {
                 var key = e.keyCode || e.charCode;
@@ -573,4 +575,14 @@ function attachCalendar(dateInputId) {
         container.style.display = "block";
     };
 }
-
+return {
+    attachCalendar: function(inputId) {
+        attachCalendar(inputId);
+    },
+    init: function(weekStart, yearsDelta, maxSelectLength) {
+        SETT.weekStart = weekStart || SETT.weekStart;
+        SETT.yearsDelta = yearsDelta || SETT.yearsDelta;
+        SETT.maxSelectLength = maxSelectLength || SETT.maxSelectLength;
+    }
+}
+}();
