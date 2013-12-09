@@ -1,0 +1,133 @@
+// Colors for fonts
+$main-color-font: white
+$light-green-font: #cbfb00
+$light-grey-font: #999999
+$dark-grey-font: #323232
+
+// Main field color scheme
+$main-background: #0e0e0e
+$top-light: #515151
+$lining: #2c2c2c
+$shadow: #000000
+
+// Sizing and shaping
+$radius: 4px
+$day-column-width: 23px
+$total-width: $day-column-width * 7 + 4px
+
+// Arrows positioning
+$arrow-drift: 6px
+
+
+@mixin fonts
+    font:
+        family: "Helvetica Neue", Helvetica, Arial, Geneva, sans-serif
+        size: 13px
+        weight: bold
+    color: $main-color-font
+
+@mixin element-hover
+    &:hover
+        cursor: default
+        border-radius: $radius
+        background-color: $lining
+
+@mixin arrow
+    padding: 0px 2px
+    position: absolute
+    color: $main-color-font
+    &:hover
+        color: $light-green-font
+
+
+.cw-container
+    position: absolute
+    width: $total-width
+    padding: 1px
+    background-color: $lining
+    border:
+        style: solid
+        width: 1px
+        color: $lining
+        radius: $radius
+    @include fonts
+    text-align: center
+    cursor: default
+
+.cw-field
+    padding-bottom: 2px
+    background-color: $main-background
+    border:
+        style: solid
+        width: 1px
+        top-color: $top-light
+        bottom-color: $shadow
+        right-color: $main-background
+        left-color: $main-background
+        radius: $radius
+
+.cw-month-head
+    position: relative
+    padding: 1px
+    div
+        display: inline
+
+.cw-long-word
+    @include element-hover
+    padding: 0px 2px
+
+.cw-arrow-back
+    @include arrow
+    @include element-hover
+    left: $arrow-drift
+
+.cw-arrow-forward
+    @include arrow
+    @include element-hover
+    right: $arrow-drift
+
+.outer-scroll
+    overflow: hidden
+    position: absolute
+    div
+        display: block
+
+.cw-inner-scroll
+    overflow: auto
+    width: 100%
+    height: 100%
+    padding: 0px 8px
+
+.cw-day
+    display: inline-block
+    width: $day-column-width - 3px - 4px
+    padding: 1px 2px
+    border:
+        right-style: solid
+        left-style: solid
+        left-width: 2px
+        right-width: 1px
+        left-color: $lining
+        right-color: $shadow
+    text-align: right
+
+/* Sequels for cw-day */
+.regular
+    @include element-hover
+
+.first
+    border-left-color: $main-background
+
+.last
+    border-right: $main-background
+
+.selected
+    color: $light-green-font
+
+.of-week
+    padding-top: 0px
+    color: $light-grey-font
+
+.not-month
+    color: $dark-grey-font
+
