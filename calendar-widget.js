@@ -61,6 +61,37 @@ var CSS_REF = {
     sequelDayRegular: " regular",
     sequelSelected: " selected"
 };
+
+var calendars = new Array();
+document.onclick = function(e) {
+    var show;
+    for (var i = 0; i < calendars.length; i++) {
+         target = e.target;
+         show = false;
+         while (target != this) {
+            if (target == calendars[i][0] ||
+                    target == calendars[i][1]) {
+                show = true;
+                break;
+            }
+                target = target.parentNode;
+            }
+        if (!show && calendars[i][0].style.display == "block") {
+            var monthSelect = getCwElement(DOM_ID.monthSelect,
+                                           calendars[i][1].id);
+            var yearSelect = getCwElement(DOM_ID.yearSelect,
+                                          calendars[i][1].id);
+            if (monthSelect.style.display == "block") {
+                closeSelectInPos(monthSelect);
+            } else if (yearSelect.style.display == "block") {
+                closeSelectInPos(yearSelect);
+            } else {
+                calendars[i][0].style.display = "none";
+            }
+        }
+    }
+};
+
 /* Eof Constants, config chunks */
 
 
@@ -535,6 +566,7 @@ function attachCalendar(dateInputId) {
         // Create calendar if container is empty
         if (!container.hasChildNodes()) {
             createCalendar(container, currentDate, dateInputId);
+            calendars.push(new Array(container, this));
         }
 
         // Allow created calendar, disable user input
@@ -549,27 +581,6 @@ function attachCalendar(dateInputId) {
                 toggle(container);
             } else {
                 return false;
-            }
-        };
-        // Hide calendar
-        document.onclick = function(e) {
-            target = e.target;
-            var show = false;
-            while (target != this) {
-                if (target == container || target == dateInput) {
-                    show = true;
-                    break;
-                }
-               target = target.parentNode;
-            }
-            if (!show) {
-                if (monthSelect.style.display == "block") {
-                    closeSelectInPos(monthSelect);
-                } else if (yearSelect.style.display == "block") {
-                    closeSelectInPos(yearSelect);
-                } else if (container.style.display == "block") {
-                    container.style.display = "none";
-                }
             }
         };
     };
