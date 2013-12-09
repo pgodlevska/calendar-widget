@@ -525,33 +525,15 @@ function attachCalendar(dateInputId) {
         // Create calendar if container is empty
         if (!container.hasChildNodes()) {
             createCalendar(container, currentDate, dateInputId);
-            document.addEventListener("click", function(e) {
+            // Close calendar
+            document.addEventListener("mousedown", function(e) {
                 var target = e.target;
                 var show = false;
+                var showSelect = false;
                 while (target != this) {
                     if (target.className.indexOf(CSS_REF.selectBody) != -1) {
-                        show = true;
+                        showSelect = true;
                     }
-                    target = target.parentNode;
-                }
-                if (!show) {
-                    var monthSelect = getCwElement(DOM_ID.monthSelect,
-                                                   dateInputId);
-                    var yearSelect = getCwElement(DOM_ID.yearSelect,
-                                                  dateInputId);
-                    if (monthSelect.style.display == "block") {
-                        closeSelectInPos(monthSelect);
-                        e.stopPropagation();
-                    } else if (yearSelect.style.display == "block") {
-                        closeSelectInPos(yearSelect);
-                        e.stopPropagation();
-                    }
-                }
-            }, true);
-            document.addEventListener("click", function(e) {
-                var target = e.target;
-                var show = false;
-                while (target != this) {
                     if (target == container || target == dateInput) {
                         show = true;
                         break;
@@ -560,8 +542,18 @@ function attachCalendar(dateInputId) {
                 }
                 if (!show && container.style.display == "block") {
                     container.style.display = "none";
+                } else if (!showSelect) {
+                    var monthSelect = getCwElement(DOM_ID.monthSelect,
+                                                   dateInputId);
+                    var yearSelect = getCwElement(DOM_ID.yearSelect,
+                                                  dateInputId);
+                    if (monthSelect.style.display == "block") {
+                        closeSelectInPos(monthSelect);
+                    } else if (yearSelect.style.display == "block") {
+                        closeSelectInPos(yearSelect);
+                    }
                 }
-            });
+            }, true);
             // Disable user input
             this.onkeydown = function(e) {
                 var key = e.keyCode || e.charCode;
