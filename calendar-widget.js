@@ -325,6 +325,8 @@ function renderMonth(dateSource) {
     var i;
     var j;
     var week;
+    var dayNo;
+    var dayNodes;
     for (i = 0; i < days.length; i++) {
         week = setNode(monthDays);
         fillWeek(week, days[i]);
@@ -380,10 +382,18 @@ function createCalendar(container, dateSource, idSuffix){
                                DOM_ID.arrowForward + idSuffix);
 
     // Select month
-    layoutScrollSelect(DOM_ID.monthSelect + idSuffix,
-                       monthInst,
-                       CONT.monthNames,
-                       dateSource);
+    var monthSelect = layoutScrollSelect(DOM_ID.monthSelect + idSuffix,
+                                         monthInst,
+                                         CONT.monthNames,
+                                         dateSource);
+    monthSelect.onclick = function(e) {
+        e.stopPropagation();
+        var month = e.target;
+        if (month.value || month.value === 0) {
+            dateSource.setMonth(month.value);
+            switchMonth(dateSource, idSuffix);
+        }
+    };
 
     // Select year
     var yearsData = yearsRange(dateSource.getFullYear(),
@@ -393,9 +403,46 @@ function createCalendar(container, dateSource, idSuffix){
                                         yearInst,
                                         yearsData,
                                         dateSource);
+    yearSelect.onclick = function(e) {
+        e.stopPropagation();
+        var year = e.target;
+        if (year.value) {
+            dateSource.setFullYear(year.value);
+            switchMonth(dateSource, idSuffix);
+        }
+    };
     yearSelect.firstChild.onscroll = function() {
         extendYearsSelect(this);
     };
+    monthHeader.onclick = function(e) {
+        // Set header events handlers
+        e.stopPropagation();
+        var target = e.target;
+        // Month back
+        if (target == arrowBack) {
+            dateSource.setMonth(dateSource.getMonth() - 1);
+            switchMonth(dateSource, idSuffix);
+        }
+        // Month forward
+        if (target == arrowForward) {
+            dateSource.setMonth(dateSource.getMonth() + 1);
+            switchMonth(dateSource, idSuffix);
+        }
+        // Month select
+        if (target == monthInst) {
+            if (yearSelect.style.display == "block") {
+                closeSelectInPos(yearSelect);
+            }
+            monthSelect.style.display = "block";
+        }
+        // Year select
+        if (target == yearInst) {
+            if (monthSelect.style.display == "block") {
+                closeSelectInPos(monthSelect);
+            }
+            yearSelect.style.display = "block";
+        };
+    }
 
     // Month
     var monthBody = setNode(field, "", "", DOM_ID.monthBody + idSuffix);
@@ -405,6 +452,19 @@ function createCalendar(container, dateSource, idSuffix){
     // Month days
     var monthDays = renderMonth(dateSource);
     monthBody.appendChild(monthDays);
+    // Pick a date
+    monthBody.onclick = function(e) {
+        e.stopPropagation();
+        var day = e.target;
+        var dayClass = day.className;
+        if (dayClass.indexOf(CSS_REF.sequelDayRegular) != -1) {
+            dateSource.setDate(day.innerHTML);
+            document.getElementById(idSuffix).value = dateString(dateSource);
+            closeSelectInPos(monthSelect);
+            closeSelectInPos(yearSelect);
+            container.style.display = "none";
+        }
+    };
 }
 /* Eof Create calendar functions */
 
@@ -475,95 +535,6 @@ function attachCalendar(dateInputId) {
         // Create calendar if container is empty
         if (!container.hasChildNodes()) {
             createCalendar(container, currentDate, dateInputId);
-
-            // Set calendar events handlers
-            // Month back
-            var monthBack = getCwElement(DOM_ID.arrowBack, dateInputId);
-            monthBack.onclick = function() {
-                currentDate.setMonth(currentDate.getMonth() - 1);
-                switchMonth(currentDate, dateInputId);
-            };
-
-            // Month forward
-            var monthForward = getCwElement(DOM_ID.arrowForward, dateInputId);
-            monthForward.onclick = function() {
-                currentDate.setMonth(currentDate.getMonth() + 1);
-                switchMonth(currentDate, dateInputId);
-            };
-
-            var monthInst = getCwElement(DOM_ID.monthInst, dateInputId);
-            var monthSelect = getCwElement(DOM_ID.monthSelect, dateInputId);
-            var yearInst = getCwElement(DOM_ID.yearInst, dateInputId);
-            var yearSelect = getCwElement(DOM_ID.yearSelect, dateInputId);
-
-            // Month select
-            monthInst.onclick = function() {
-                if (yearSelect.style.display == "block") {
-                    closeSelectInPos(yearSelect);
-                }
-                monthSelect.style.display = "block";
-            };
-            monthSelect.onclick = function(e) {
-                var month = e.target;
-                e.stopPropagation();
-                if (month.value || month.value === 0) {
-                    currentDate.setMonth(month.value);
-                    switchMonth(currentDate, dateInputId);
-                }
-            }
-
-            // Year select
-            yearInst.onclick = function() {
-                if (monthSelect.style.display == "block") {
-                    closeSelectInPos(monthSelect);
-                }
-                yearSelect.style.display = "block";
-            };
-            yearSelect.onclick = function(e) {
-                var year = e.target;
-                e.stopPropagation();
-                if (year.value) {
-                    currentDate.setFullYear(year.value);
-                    switchMonth(currentDate, dateInputId);
-                }
-            };
-
-            // Pick a date
-            var monthBody = getCwElement(DOM_ID.monthBody, dateInputId);
-            monthBody.onclick = function(e) {
-                var day = e.target;
-                e.stopPropagation();
-                var dayClass = day.className;
-                if (dayClass.indexOf(CSS_REF.sequelDayRegular) != -1) {
-                    currentDate.setDate(day.innerHTML);
-                    dateInput.value = dateString(currentDate);
-                    closeSelectInPos(monthSelect);
-                    closeSelectInPos(yearSelect);
-                    container.style.display = "none";
-                }
-            };
-
-            // Hide calendar
-            document.onclick = function(e) {
-                target = e.target;
-                var show = false;
-                while (target != this) {
-                    if (target == container || target == dateInput) {
-                        show = true;
-                        break;
-                    }
-                   target = target.parentNode;
-                }
-                if (!show) {
-                    if (monthSelect.style.display == "block") {
-                        closeSelectInPos(monthSelect);
-                    } else if (yearSelect.style.display == "block") {
-                        closeSelectInPos(yearSelect);
-                    } else if (container.style.display == "block") {
-                        container.style.display = "none";
-                    }
-                }
-            };
         }
 
         // Allow created calendar, disable user input
@@ -578,6 +549,27 @@ function attachCalendar(dateInputId) {
                 toggle(container);
             } else {
                 return false;
+            }
+        };
+        // Hide calendar
+        document.onclick = function(e) {
+            target = e.target;
+            var show = false;
+            while (target != this) {
+                if (target == container || target == dateInput) {
+                    show = true;
+                    break;
+                }
+               target = target.parentNode;
+            }
+            if (!show) {
+                if (monthSelect.style.display == "block") {
+                    closeSelectInPos(monthSelect);
+                } else if (yearSelect.style.display == "block") {
+                    closeSelectInPos(yearSelect);
+                } else if (container.style.display == "block") {
+                    container.style.display = "none";
+                }
             }
         };
     };
