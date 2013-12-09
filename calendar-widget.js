@@ -1,19 +1,19 @@
 /* Constants, config chunks */
 
 /* Chunk of JS to attach calendar to each input having type "date" */
-window.onload = function() {
+window.addEventListener("load", function() {
     inputs = document.getElementsByTagName("input");
     for (var i = 0; i < inputs.length; i++) {
         if (inputs[i].getAttribute("type") == "date") {
             attachCalendar(inputs[i].id);
         }
     }
-};
+});
 
 /* Chunk of JS to attach calendar to input with id="date_input"
-window.onload = function() {
+window.ddEventListener("load", function() {
     attachCalendar("date_input");
-};*/
+});*/
 
 var SETT = {
     // Week starts from: 0 - Sunday, 1 - Monday, .. 6 - Saturday.
@@ -61,37 +61,6 @@ var CSS_REF = {
     sequelDayRegular: " regular",
     sequelSelected: " selected"
 };
-
-var calendars = new Array();
-document.onclick = function(e) {
-    var show;
-    for (var i = 0; i < calendars.length; i++) {
-         target = e.target;
-         show = false;
-         while (target != this) {
-            if (target == calendars[i][0] ||
-                    target == calendars[i][1]) {
-                show = true;
-                break;
-            }
-                target = target.parentNode;
-            }
-        if (!show && calendars[i][0].style.display == "block") {
-            var monthSelect = getCwElement(DOM_ID.monthSelect,
-                                           calendars[i][1].id);
-            var yearSelect = getCwElement(DOM_ID.yearSelect,
-                                          calendars[i][1].id);
-            if (monthSelect.style.display == "block") {
-                closeSelectInPos(monthSelect);
-            } else if (yearSelect.style.display == "block") {
-                closeSelectInPos(yearSelect);
-            } else {
-                calendars[i][0].style.display = "none";
-            }
-        }
-    }
-};
-
 /* Eof Constants, config chunks */
 
 
@@ -487,8 +456,7 @@ function createCalendar(container, dateSource, idSuffix){
     monthBody.onclick = function(e) {
         e.stopPropagation();
         var day = e.target;
-        var dayClass = day.className;
-        if (dayClass.indexOf(CSS_REF.sequelDayRegular) != -1) {
+        if (day.className.indexOf(CSS_REF.sequelDayRegular) != -1) {
             dateSource.setDate(day.innerHTML);
             document.getElementById(idSuffix).value = dateString(dateSource);
             closeSelectInPos(monthSelect);
@@ -566,23 +534,60 @@ function attachCalendar(dateInputId) {
         // Create calendar if container is empty
         if (!container.hasChildNodes()) {
             createCalendar(container, currentDate, dateInputId);
-            calendars.push(new Array(container, this));
+            document.addEventListener("click", function(e) {
+                var target = e.target;
+                var show = false;
+                while (target != this) {
+                    if (target.className.indexOf(CSS_REF.selectBody) != -1) {
+                        show = true;
+                    }
+                    target = target.parentNode;
+                }
+                if (!show) {
+                    var monthSelect = getCwElement(DOM_ID.monthSelect,
+                                                   dateInputId);
+                    var yearSelect = getCwElement(DOM_ID.yearSelect,
+                                                  dateInputId);
+                    if (monthSelect.style.display == "block") {
+                        closeSelectInPos(monthSelect);
+                        e.stopPropagation();
+                    } else if (yearSelect.style.display == "block") {
+                        closeSelectInPos(yearSelect);
+                        e.stopPropagation();
+                    }
+                }
+            }, true);
+            document.addEventListener("click", function(e) {
+                var target = e.target;
+                var show = false;
+                while (target != this) {
+                    if (target == container || target == dateInput) {
+                        show = true;
+                        break;
+                    }
+                    target = target.parentNode;
+                }
+                if (!show && container.style.display == "block") {
+                    container.style.display = "none";
+                }
+            });
+            // Disable user input
+            this.onkeydown = function(e) {
+                var key = e.keyCode || e.charCode;
+                // Clear input value on backspace and delete
+                if (key == 8 || key == 46) {
+                    this.value = "";
+                // Toggle on enter
+                } else if (key ==13) {
+                    toggle(container);
+                } else {
+                    return false;
+                }
+            };
         }
 
-        // Allow created calendar, disable user input
+        // Allow created calendar
         container.style.display = "block";
-        this.onkeydown = function(e) {
-            var key = e.keyCode || e.charCode;
-            // Clear input value on backspace and delete
-            if (key == 8 || key == 46) {
-                this.value = "";
-            // Toggle on enter
-            } else if (key ==13) {
-                toggle(container);
-            } else {
-                return false;
-            }
-        };
     };
 }
 
