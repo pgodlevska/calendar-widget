@@ -1,19 +1,10 @@
 /* Constants, config chunks */
 
-/* Chunk of JS to attach calendar to each input having type "date" */
+/* Chunk of JS to attach calendar to input with id="date_input" */
 window.addEventListener("load", function() {
-    inputs = document.getElementsByTagName("input");
-    for (var i = 0; i < inputs.length; i++) {
-        if (inputs[i].getAttribute("type") == "date") {
-            attachCalendar(inputs[i].id);
-        }
-    }
-});
-
-/* Chunk of JS to attach calendar to input with id="date_input"
-window.ddEventListener("load", function() {
     attachCalendar("date_input");
-});*/
+    attachCalendar("another_date_input");
+});
 
 var SETT = {
     // Week starts from: 0 - Sunday, 1 - Monday, .. 6 - Saturday.
@@ -511,8 +502,7 @@ function switchMonth(dateSource, suffix) {
 function attachCalendar(dateInputId) {
     var dateInput = document.getElementById(dateInputId);
     // Test element to attach calendar
-    if (dateInput.getAttribute("type") != "date" &&
-            dateInput.getAttribute("type") != "text") {
+    if (dateInput.getAttribute("type") != "text") {
         return;
     }
 
