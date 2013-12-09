@@ -325,6 +325,8 @@ function renderMonth(dateSource) {
     var i;
     var j;
     var week;
+    var dayNodes;
+    var dayNo;
     for (i = 0; i < days.length; i++) {
         week = setNode(monthDays);
         fillWeek(week, days[i]);
