@@ -113,7 +113,8 @@ function monthInWeeks(dateSource, weekStart) {
                                     1);
     // Look for latest start of the week before 1st of the month.
     if (varDay.getDay() != weekStart) {
-        varDay.setDate(varDay.getDate() - varDay.getDay() - 7 + weekStart);
+        var dayOffset = (varDay.getDay() + 7 - weekStart) % 7;
+        varDay.setDate(varDay.getDate() - dayOffset);
         }
 
     var i = 0;
