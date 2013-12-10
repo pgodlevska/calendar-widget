@@ -1,4 +1,4 @@
-var calendarWidget = function() {
+var calendarWidget = (function() {
 
 /* Configs, constants */
 
@@ -48,7 +48,7 @@ var CSS_REF = {
     sequelDayRegular: " regular",
     sequelSelected: " selected"
 };
-/* Eof Constants, config chunks */
+/* Eof Configs, constants */
 
 
 /* Preparing data functions */
@@ -103,28 +103,28 @@ function dateFromString(dateString) {
 
 function monthInWeeks(dateSource, weekStart) {
     // Day week starts: 0 - Sunday, 1 - Monday and so on till 6 - Saturday.
-    weekStart = weekStart || 0;
+    weekStart = weekStart % 7 || 0;
 
     var daysInWeeks = new Array();
     // First day of month defined by given dateSource
-    var d = new Date(dateSource.getFullYear(), dateSource.getMonth(), 1);
+    var varDay = new Date(dateSource.getFullYear(), dateSource.getMonth(), 1);
     var firstOfNextMonth = new Date(dateSource.getFullYear(),
                                     dateSource.getMonth() + 1,
                                     1);
     // Look for latest start of the week before 1st of the month.
-    if (d.getDay() != weekStart) {
-        d.setDate(d.getDate() - d.getDay() + weekStart);
+    if (varDay.getDay() != weekStart) {
+        varDay.setDate(varDay.getDate() - varDay.getDay() - 7 + weekStart);
         }
 
     var i = 0;
     var j;
     // All weeks contain this month days
-    while (d < firstOfNextMonth) {
+    while (varDay < firstOfNextMonth) {
         // Arrange days in weeks
         daysInWeeks[i] = new Array();
         for (j = 0; j < 7; j++) {
-            daysInWeeks[i][j] = d.getDate();
-            d.setDate(d.getDate() + 1);
+            daysInWeeks[i][j] = varDay.getDate();
+            varDay.setDate(varDay.getDate() + 1);
         }
         i++;
    }
@@ -223,9 +223,7 @@ function closeSelectInPos(selectPlace) {
 }
 
 function extendYearsSelect(selectBody) {
-    // appendTo - string defines add years to start or to end of select
-    // values: "start" and "end" respectively
-    if (selectBody.scrollTop > 0 && selectBody.scrollTop < 50) {
+    if (selectBody.scrollTop < 50) {
         var start = true;
     } else if (selectBody.scrollTop ==
                    selectBody.scrollHeight - selectBody.offsetHeight) {
@@ -585,4 +583,4 @@ return {
         SETT.maxSelectLength = maxSelectLength || SETT.maxSelectLength;
     }
 }
-}();
+}());
