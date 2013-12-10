@@ -1,27 +1,14 @@
-/* Constants, config chunks */
+var calendarWidget = (function() {
 
-/* Chunk of JS to attach calendar to each input having type "date" */
-window.onload = function() {
-    inputs = document.getElementsByTagName("input");
-    for (var i = 0; i < inputs.length; i++) {
-        if (inputs[i].getAttribute("type") == "date") {
-            attachCalendar(inputs[i].id);
-        }
-    }
-};
-
-/* Chunk of JS to attach calendar to input with id="date_input"
-window.onload = function() {
-    attachCalendar("date_input");
-};*/
+/* Configs, constants */
 
 var SETT = {
     // Week starts from: 0 - Sunday, 1 - Monday, .. 6 - Saturday.
-    startWeek: 0,
+    weekStart: 0,
     // Number of years in select before and after selected.
     yearsDelta: 10,
     // Max number of items in extended year select
-    maxYearsSelectLength: 300
+    maxSelectLength: 300
 };
 
 var CONT = {
@@ -61,7 +48,7 @@ var CSS_REF = {
     sequelDayRegular: " regular",
     sequelSelected: " selected"
 };
-/* Eof Constants, config chunks */
+/* Eof Configs, constants */
 
 
 /* Preparing data functions */
@@ -101,7 +88,7 @@ function dateString(dateSource) {
 
 function dateFromString(dateString) {
     // Date format "yyyy-mm-dd"
-    var patt = new RegExp("^([0-9]{4}).([0-9]{2}).([0-9]{2})");
+    var patt = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})");
     var found = dateString.match(patt);
     if (found) {
         var date = new Date();
@@ -114,30 +101,30 @@ function dateFromString(dateString) {
     }
 }
 
-function monthInWeeks(dateSource, startWeek) {
+function monthInWeeks(dateSource, weekStart) {
     // Day week starts: 0 - Sunday, 1 - Monday and so on till 6 - Saturday.
-    startWeek = startWeek || 0;
+    weekStart = weekStart % 7 || 0;
 
     var daysInWeeks = new Array();
     // First day of month defined by given dateSource
-    var d = new Date(dateSource.getFullYear(), dateSource.getMonth(), 1);
+    var varDay = new Date(dateSource.getFullYear(), dateSource.getMonth(), 1);
     var firstOfNextMonth = new Date(dateSource.getFullYear(),
                                     dateSource.getMonth() + 1,
                                     1);
     // Look for latest start of the week before 1st of the month.
-    if (d.getDay() != startWeek) {
-        d.setDate(d.getDate() - d.getDay() + startWeek);
+    if (varDay.getDay() != weekStart) {
+        varDay.setDate(varDay.getDate() - varDay.getDay() - 7 + weekStart);
         }
 
     var i = 0;
     var j;
     // All weeks contain this month days
-    while (d < firstOfNextMonth) {
+    while (varDay < firstOfNextMonth) {
         // Arrange days in weeks
         daysInWeeks[i] = new Array();
         for (j = 0; j < 7; j++) {
-            daysInWeeks[i][j] = d.getDate();
-            d.setDate(d.getDate() + 1);
+            daysInWeeks[i][j] = varDay.getDate();
+            varDay.setDate(varDay.getDate() + 1);
         }
         i++;
    }
@@ -236,18 +223,17 @@ function closeSelectInPos(selectPlace) {
 }
 
 function extendYearsSelect(selectBody) {
-    // appendTo - string defines add years to start or to end of select
-    // values: "start" and "end" respectively
-    if (selectBody.scrollTop > 0 && selectBody.scrollTop < 10) {
+    if (selectBody.scrollTop < 50) {
         var start = true;
-    } else if (selectBody.scrollTop == selectBody.scrollTopMax) {
+    } else if (selectBody.scrollTop ==
+                   selectBody.scrollHeight - selectBody.offsetHeight) {
         var start = false;
     } else {
         return false;
     }
     var selectItems = selectBody.childNodes;
     var selectLength = selectItems.length;
-    if (selectLength >= SETT.maxYearsSelectLength) {
+    if (selectLength >= SETT.maxSelectLength) {
         return false;
     }
     var item;
@@ -319,12 +305,14 @@ function fillWeek(weekNode, daysArray, letters) {
 function renderMonth(dateSource) {
     // Render numeric part of month display
     var today = new Date();
-    var days = monthInWeeks(dateSource, SETT.startWeek);
+    var days = monthInWeeks(dateSource, SETT.weekStart);
     var monthDays = document.createElement("div");
 
     var i;
     var j;
     var week;
+    var dayNo;
+    var dayNodes;
     for (i = 0; i < days.length; i++) {
         week = setNode(monthDays);
         fillWeek(week, days[i]);
@@ -380,10 +368,18 @@ function createCalendar(container, dateSource, idSuffix){
                                DOM_ID.arrowForward + idSuffix);
 
     // Select month
-    layoutScrollSelect(DOM_ID.monthSelect + idSuffix,
-                       monthInst,
-                       CONT.monthNames,
-                       dateSource);
+    var monthSelect = layoutScrollSelect(DOM_ID.monthSelect + idSuffix,
+                                         monthInst,
+                                         CONT.monthNames,
+                                         dateSource);
+    monthSelect.onclick = function(e) {
+        e.stopPropagation();
+        var month = e.target;
+        if (month.value || month.value === 0) {
+            dateSource.setMonth(month.value);
+            switchMonth(dateSource, idSuffix);
+        }
+    };
 
     // Select year
     var yearsData = yearsRange(dateSource.getFullYear(),
@@ -393,18 +389,72 @@ function createCalendar(container, dateSource, idSuffix){
                                         yearInst,
                                         yearsData,
                                         dateSource);
+    yearSelect.onclick = function(e) {
+        e.stopPropagation();
+        var year = e.target;
+        if (year.value) {
+            dateSource.setFullYear(year.value);
+            switchMonth(dateSource, idSuffix);
+        }
+    };
     yearSelect.firstChild.onscroll = function() {
         extendYearsSelect(this);
     };
+    monthHeader.onclick = function(e) {
+        // Set header events handlers
+        e.stopPropagation();
+        var target = e.target;
+        // Month back
+        if (target == arrowBack) {
+            dateSource.setMonth(dateSource.getMonth() - 1);
+            switchMonth(dateSource, idSuffix);
+        }
+        // Month forward
+        if (target == arrowForward) {
+            dateSource.setMonth(dateSource.getMonth() + 1);
+            switchMonth(dateSource, idSuffix);
+        }
+        // Month select
+        if (target == monthInst) {
+            if (yearSelect.style.display == "block") {
+                closeSelectInPos(yearSelect);
+            }
+            monthSelect.style.display = "block";
+        }
+        // Year select
+        if (target == yearInst) {
+            if (monthSelect.style.display == "block") {
+                closeSelectInPos(monthSelect);
+            }
+            yearSelect.style.display = "block";
+        };
+    }
 
     // Month
     var monthBody = setNode(field, "", "", DOM_ID.monthBody + idSuffix);
     // Header with week days
     var weekHead = setNode(monthBody);
-    fillWeek(weekHead, CONT.dayShortNames, true);
+    var weekDays = new Array();
+    for (var i = 0; i < 7; i++) {
+        m = (i + SETT.weekStart) % 7;
+        weekDays.push(CONT.dayShortNames[m]);
+    }
+    fillWeek(weekHead, weekDays, true);
     // Month days
     var monthDays = renderMonth(dateSource);
     monthBody.appendChild(monthDays);
+    // Pick a date
+    monthBody.onclick = function(e) {
+        e.stopPropagation();
+        var day = e.target;
+        if (day.className.indexOf(CSS_REF.sequelDayRegular) != -1) {
+            dateSource.setDate(day.innerHTML);
+            document.getElementById(idSuffix).value = dateString(dateSource);
+            closeSelectInPos(monthSelect);
+            closeSelectInPos(yearSelect);
+            container.style.display = "none";
+        }
+    };
 }
 /* Eof Create calendar functions */
 
@@ -447,12 +497,10 @@ function switchMonth(dateSource, suffix) {
 }
 /* Eof Switch month functions */
 
-
 function attachCalendar(dateInputId) {
     var dateInput = document.getElementById(dateInputId);
     // Test element to attach calendar
-    if (dateInput.getAttribute("type") != "date" &&
-            dateInput.getAttribute("type") != "text") {
+    if (dateInput.getAttribute("type") != "text") {
         return;
     }
 
@@ -476,110 +524,64 @@ function attachCalendar(dateInputId) {
         if (!container.hasChildNodes()) {
             createCalendar(container, currentDate, dateInputId);
 
-            // Set calendar events handlers
-            // Month back
-            var monthBack = getCwElement(DOM_ID.arrowBack, dateInputId);
-            monthBack.onclick = function() {
-                currentDate.setMonth(currentDate.getMonth() - 1);
-                switchMonth(currentDate, dateInputId);
-            };
-
-            // Month forward
-            var monthForward = getCwElement(DOM_ID.arrowForward, dateInputId);
-            monthForward.onclick = function() {
-                currentDate.setMonth(currentDate.getMonth() + 1);
-                switchMonth(currentDate, dateInputId);
-            };
-
-            var monthInst = getCwElement(DOM_ID.monthInst, dateInputId);
-            var monthSelect = getCwElement(DOM_ID.monthSelect, dateInputId);
-            var yearInst = getCwElement(DOM_ID.yearInst, dateInputId);
-            var yearSelect = getCwElement(DOM_ID.yearSelect, dateInputId);
-
-            // Month select
-            monthInst.onclick = function() {
-                if (yearSelect.style.display == "block") {
-                    closeSelectInPos(yearSelect);
-                }
-                monthSelect.style.display = "block";
-            };
-            monthSelect.onclick = function(e) {
-                var month = e.target;
-                e.stopPropagation();
-                if (month.value || month.value === 0) {
-                    currentDate.setMonth(month.value);
-                    switchMonth(currentDate, dateInputId);
-                }
-            }
-
-            // Year select
-            yearInst.onclick = function() {
-                if (monthSelect.style.display == "block") {
-                    closeSelectInPos(monthSelect);
-                }
-                yearSelect.style.display = "block";
-            };
-            yearSelect.onclick = function(e) {
-                var year = e.target;
-                e.stopPropagation();
-                if (year.value) {
-                    currentDate.setFullYear(year.value);
-                    switchMonth(currentDate, dateInputId);
-                }
-            };
-
-            // Pick a date
-            var monthBody = getCwElement(DOM_ID.monthBody, dateInputId);
-            monthBody.onclick = function(e) {
-                var day = e.target;
-                e.stopPropagation();
-                var dayClass = day.className;
-                if (dayClass.indexOf(CSS_REF.sequelDayRegular) != -1) {
-                    currentDate.setDate(day.innerHTML);
-                    dateInput.value = dateString(currentDate);
-                    closeSelectInPos(monthSelect);
-                    closeSelectInPos(yearSelect);
-                    container.style.display = "none";
-                }
-            };
-
-            // Hide calendar
-            document.onclick = function(e) {
-                target = e.target;
+            // Close calendar handler
+            document.addEventListener("mousedown", function(e) {
+                var target = e.target;
                 var show = false;
+                var showSelect = false;
                 while (target != this) {
+                    if (target.className.indexOf(CSS_REF.selectBody) != -1) {
+                        showSelect = true;
+                    }
                     if (target == container || target == dateInput) {
                         show = true;
                         break;
                     }
-                   target = target.parentNode;
+                    target = target.parentNode;
                 }
-                if (!show) {
+                if (!show && container.style.display == "block") {
+                    container.style.display = "none";
+                } else if (!showSelect) {
+                    var monthSelect = getCwElement(DOM_ID.monthSelect,
+                                                   dateInputId);
+                    var yearSelect = getCwElement(DOM_ID.yearSelect,
+                                                  dateInputId);
                     if (monthSelect.style.display == "block") {
                         closeSelectInPos(monthSelect);
                     } else if (yearSelect.style.display == "block") {
                         closeSelectInPos(yearSelect);
-                    } else if (container.style.display == "block") {
-                        container.style.display = "none";
                     }
+                }
+            }, true);
+
+            // Disable user input
+            this.onkeydown = function(e) {
+                var key = e.keyCode || e.charCode;
+                // Clear input value on backspace and delete
+                if (key == 8 || key == 46) {
+                    this.value = "";
+                // Toggle on enter
+                } else if (key ==13) {
+                    toggle(container);
+                } else {
+                    return false;
                 }
             };
         }
 
-        // Allow created calendar, disable user input
+        // Allow created calendar
         container.style.display = "block";
-        this.onkeydown = function(e) {
-            var key = e.keyCode || e.charCode;
-            // Clear input value on backspace and delete
-            if (key == 8 || key == 46) {
-                this.value = "";
-            // Toggle on enter
-            } else if (key ==13) {
-                toggle(container);
-            } else {
-                return false;
-            }
-        };
     };
 }
+return {
+    attachCalendar: function(inputId) {
+        attachCalendar(inputId);
+    },
+    init: function(weekStart, yearsDelta, maxSelectLength) {
+        SETT.weekStart = weekStart || SETT.weekStart;
+        SETT.yearsDelta = yearsDelta || SETT.yearsDelta;
+        SETT.maxSelectLength = maxSelectLength || SETT.maxSelectLength;
+    }
+}
+}());
 
