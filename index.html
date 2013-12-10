@@ -7,15 +7,20 @@
         <div>
             <span>
                 <label for="date_input">Date:</label>
-                <input type="date" id="date_input" size="10">
+                <input type="text" id="date_input" size="10">
             </span>
         </div>
         <div>
             <span>
-                <label for="city_input">City:</label>
-                <input type="text" id="city_input" size="10">
+                <label for="another_date_input">Another date:</label>
+                <input type="text" id="another_date_input" size="10">
             </span>
         </div>
     </body>
+<script>
+    calendarWidget.init(1);
+    calendarWidget.attachCalendar("date_input");
+    calendarWidget.attachCalendar("another_date_input");
+</script>
 </html>
 
